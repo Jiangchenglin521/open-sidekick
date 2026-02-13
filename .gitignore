@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# 环境变量和密钥
+.env
+**/*.key
+**/*.pem
+**/secrets*
+
+# 临时文件
+*.tmp
+*.log
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
