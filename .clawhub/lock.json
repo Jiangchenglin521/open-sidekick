@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "find-skills": {
+      "version": "0.1.0",
+      "installedAt": 1770879433915
+    },
+    "super-websearch-realtime": {
+      "version": "1.0.0",
+      "installedAt": 1770879518340
+    },
+    "search": {
+      "version": "1.0.0",
+      "installedAt": 1770879614871
+    },
+    "tavily-search": {
+      "version": "1.0.0",
+      "installedAt": 1770879622231
+    },
+    "proactive-agent-1-2-4": {
+      "version": "1.0.0",
+      "installedAt": 1770879990091
+    },
+    "imap-smtp-email": {
+      "version": "0.0.2",
+      "installedAt": 1771311654124
+    }
+  }
+}
