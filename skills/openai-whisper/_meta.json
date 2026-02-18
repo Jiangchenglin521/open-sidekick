@@ -1,0 +1,12 @@
+{
+  "name": "openai-whisper",
+  "version": "1.0.0",
+  "description": "Local speech-to-text using OpenAI Whisper",
+  "author": "OpenClaw",
+  "install": {
+    "darwin": "brew install openai-whisper && pip3 install openai-whisper",
+    "linux": "pip3 install openai-whisper"
+  },
+  "requires": ["ffmpeg", "python3"],
+  "entry": "SKILL.md"
+}
