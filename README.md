@@ -115,10 +115,28 @@ git clone https://github.com/Jiangchenglin521/omojoker.git
 cd omojoker
 ```
 
-### 3. 配置环境
+### 3. 配置 OpenClaw 核心文件
 
 ```bash
-# 运行配置检查
+# 创建 OpenClaw 配置目录
+mkdir -p ~/.openclaw
+
+# 复制主配置文件模板
+cp config/openclaw.json.example ~/.openclaw/openclaw.json
+
+# 配置模型 API Key（两种方式）
+# 方式1：通过命令行（推荐）
+openclaw auth add moonshot --api-key YOUR_MOONSHOT_API_KEY
+openclaw auth add anthropic --api-key YOUR_ANTHROPIC_API_KEY
+
+# 方式2：手动编辑配置文件
+# 编辑 ~/.openclaw/openclaw.json 填入密钥
+```
+
+### 4. 配置技能环境
+
+```bash
+# 运行配置检查（会提示缺什么）
 ./scripts/check-config.sh
 
 # 复制示例配置并编辑
@@ -130,7 +148,7 @@ cp skills/imap-smtp-email/.env.example skills/imap-smtp-email/.env
 # 见下方「详细配置说明」
 ```
 
-### 4. 启动 Gateway
+### 5. 启动 Gateway
 
 ```bash
 openclaw gateway run
@@ -139,7 +157,7 @@ openclaw gateway run
 nohup openclaw gateway run > /tmp/openclaw-gateway.log 2>&1 &
 ```
 
-### 5. 验证安装
+### 6. 验证安装
 
 ```bash
 openclaw channels status --probe
@@ -148,6 +166,56 @@ openclaw channels status --probe
 ---
 
 ## 详细配置说明
+
+### OpenClaw 核心配置
+
+#### 1. 主配置文件 (~/.openclaw/openclaw.json)
+
+这是 OpenClaw 的核心配置文件，包含模型、渠道、插件等配置。
+
+**模板位置**：`config/openclaw.json.example`
+
+**关键配置项**：
+- `models` - AI 模型配置（Moonshot、Anthropic 等）
+- `channels.feishu` - 飞书机器人配置（AppId、AppSecret）
+- `gateway` - Gateway 服务配置（端口、认证 Token）
+- `plugins.allow` - 允许的插件列表
+
+**详细说明见**：`config/README.md`
+
+#### 2. 模型 API Key 配置
+
+```bash
+# Moonshot (Kimi)
+openclaw auth add moonshot --api-key YOUR_API_KEY
+
+# Anthropic (Claude)
+openclaw auth add anthropic --api-key YOUR_API_KEY
+
+# 查看已配置的凭证
+openclaw auth list
+```
+
+#### 3. 飞书渠道配置（可选）
+
+如果你想通过飞书与 Agent 交互：
+
+1. **创建飞书应用**：
+   - 访问 [飞书开放平台](https://open.feishu.cn/app)
+   - 创建企业自建应用
+   - 开启机器人能力
+
+2. **获取凭证**：
+   - 在「凭证与基础信息」获取 `App ID` 和 `App Secret`
+   - 编辑 `~/.openclaw/openclaw.json`
+
+3. **发布应用**并添加到群聊
+
+**详细步骤见**：`config/README.md#配置飞书渠道`
+
+---
+
+### 技能配置
 
 ### 必需配置
 
