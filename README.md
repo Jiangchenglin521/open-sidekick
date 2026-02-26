@@ -96,7 +96,208 @@
 
 ---
 
-## 如何使用？
+## 快速开始
+
+### 1. 安装 OpenClaw
+
+```bash
+# 安装 CLI
+npm install -g openclaw
+
+# 验证安装
+openclaw --version
+```
+
+### 2. 克隆仓库
+
+```bash
+git clone https://github.com/Jiangchenglin521/omojoker.git
+cd omojoker
+```
+
+### 3. 配置环境
+
+```bash
+# 运行配置检查
+./scripts/check-config.sh
+
+# 复制示例配置并编辑
+cp .env.example .env
+cp skills/chinese-asr/config.example.json skills/chinese-asr/config.json
+cp skills/imap-smtp-email/.env.example skills/imap-smtp-email/.env
+
+# 编辑配置文件，填入你的 API Key
+# 见下方「详细配置说明」
+```
+
+### 4. 启动 Gateway
+
+```bash
+openclaw gateway run
+
+# 或使用后台模式
+nohup openclaw gateway run > /tmp/openclaw-gateway.log 2>&1 &
+```
+
+### 5. 验证安装
+
+```bash
+openclaw channels status --probe
+```
+
+---
+
+## 详细配置说明
+
+### 必需配置
+
+#### Tavily API Key (实时搜索)
+1. 访问 https://tavily.com 注册账号
+2. 获取 API Key
+3. 编辑 `.env` 文件：
+   ```
+   TAVILY_API_KEY=tvly-dev-your-actual-key-here
+   ```
+
+### 可选配置
+
+#### 腾讯云 ASR (语音识别)
+1. 访问 https://console.cloud.tencent.com/cam/capi
+2. 新建密钥获取 `SecretId` 和 `SecretKey`
+3. 编辑 `skills/chinese-asr/config.json`：
+   ```json
+   {
+     "tencent_asr": {
+       "secret_id": "AKIDxxxxx",
+       "secret_key": "xxxxxx"
+     }
+   }
+   ```
+
+#### 邮件收发 (IMAP/SMTP)
+1. 编辑 `skills/imap-smtp-email/.env`
+2. 填入你的邮箱信息：
+   ```
+   IMAP_USER=your-email@gmail.com
+   IMAP_PASS=your-app-password
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASS=your-app-password
+   ```
+3. **注意**：
+   - Gmail：使用应用专用密码 (App Password)
+   - 163/QQ：使用授权码 (不是邮箱密码)
+
+### 配置检查清单
+
+运行 `./scripts/check-config.sh` 会自动检查：
+- ✅ `.env` 文件是否存在
+- ✅ 必需 API Key 是否已配置
+- ✅ 各技能配置文件是否完整
+- ✅ openclaw CLI 是否安装
+- ✅ gateway 是否运行
+
+---
+
+## Fork 后如何定制？
+
+### 1. 修改 Agent 人格
+
+编辑以下文件，打造你自己的助手：
+- `SOUL.md` - Agent 的性格和边界
+- `IDENTITY.md` - Agent 的身份信息
+- `USER.md` - 你和 Agent 的关系
+- `MEMORY.md` - 长期记忆和重要决策
+
+### 2. 添加新技能
+
+```bash
+# 从 clawhub 安装
+openclaw skills install <skill-name>
+
+# 或手动创建 skills/my-skill/
+# 参考现有技能结构
+```
+
+### 3. 连接你的渠道
+
+```bash
+# 配置飞书
+openclaw channels add feishu
+
+# 或其他渠道
+openclaw channels add telegram
+openclaw channels add discord
+```
+
+### 4. 定期维护
+
+```bash
+# 检查配置完整性
+./scripts/check-config.sh
+
+# 更新到最新版本
+git pull origin main
+npm install -g openclaw@latest
+
+# 同步工作区状态
+openclaw doctor
+```
+
+---
+
+## 安全须知
+
+⚠️ **永远不要上传以下内容到 GitHub：**
+- 真实的 API Key、Secret、Token
+- 邮箱密码或授权码
+- 私钥文件 (.pem, .key)
+- 个人身份信息
+
+✅ **我们提供的安全措施：**
+- `.env` 和 `config.json` 已在 `.gitignore` 中排除
+- 提供 `.env.example` 和 `config.example.json` 模板
+- 敏感信息检测会在提交时自动提醒
+- 详细的配置检查脚本
+
+---
+
+## 故障排除
+
+### Gateway 启动失败
+```bash
+# 检查端口占用
+lsof -i :18789
+
+# 清理旧进程
+pkill -f openclaw-gateway
+
+# 重新启动
+openclaw gateway run
+```
+
+### 技能加载失败
+```bash
+# 检查插件权限
+openclaw config get plugins.allow
+
+# 重新安装依赖
+cd skills/<skill-name>
+npm install
+```
+
+### 飞书收不到消息
+```bash
+# 检查飞书配置
+openclaw channels status
+
+# 重新授权
+openclaw channels remove feishu
+openclaw channels add feishu
+```
+
+---
+
+## 如何使用？（原始参考）
 
 **这不是一个开箱即用的项目**，而是我个人工作区的备份。
 

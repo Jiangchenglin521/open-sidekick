@@ -1,0 +1,10 @@
+{
+  "_comment": "腾讯云语音识别配置 - 复制此文件为 config.json 并填入你的真实值",
+  "tencent_asr": {
+    "secret_id": "YOUR_SECRET_ID_HERE",
+    "secret_key": "YOUR_SECRET_KEY_HERE"
+  },
+  "tavily": {
+    "api_key": "YOUR_TAVILY_API_KEY_HERE"
+  }
+}
