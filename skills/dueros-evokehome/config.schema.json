@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DuerOS EvokeHome Configuration",
+  "type": "object",
+  "properties": {
+    "accessToken": {
+      "type": "string",
+      "description": "DuerOS Access Token",
+      "minLength": 10
+    },
+    "refreshToken": {
+      "type": "string",
+      "description": "DuerOS Refresh Token（用于自动续期）"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Token 过期时间"
+    },
+    "tokenExpiryCheck": {
+      "type": "boolean",
+      "default": false,
+      "description": "启用 Token 过期提醒"
+    },
+    "autoRefresh": {
+      "type": "boolean",
+      "default": false,
+      "description": "启用 Token 自动续期"
+    },
+    "defaultDevice": {
+      "type": "string",
+      "default": "台灯",
+      "description": "默认控制的设备名称"
+    }
+  },
+  "required": ["accessToken"]
+}

@@ -1,56 +1,94 @@
 ---
 name: chinese-asr
+version: "1.0.0"
 description: 腾讯云语音识别 - 中文语音转文字
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🎤",
-      },
-  }
+  openclaw:
+    emoji: 🎤
+    category: media
+    requires:
+      config: [tencent_asr]
 ---
 
-# Chinese ASR - 腾讯云语音识别
+# Chinese ASR 🎤
 
-将中文语音（ogg-opus格式）转换为文字。
+腾讯云语音识别，支持中文语音转文字。
+
+## 功能
+
+- 🎯 中文语音转文字
+- 🔊 支持多种格式：ogg-opus、mp3、wav
+- ⚡ 实时转录，响应快速
+
+## 安装
+
+```bash
+# 克隆到 skills 目录
+cd ~/.openclaw/workspace/skills
+git clone <repo-url> chinese-asr
+```
 
 ## 配置
 
-1. 创建 `config.json` 文件（已创建）：
+复制示例配置并填入密钥：
+
+```bash
+cp config.example.json config.json
+# 编辑 config.json，填入你的腾讯云密钥
+```
+
+`config.json`:
 ```json
 {
   "tencent_asr": {
-    "secret_id": "你的SecretId",
-    "secret_key": "你的SecretKey"
+    "secret_id": "AKIDxxxxxxxx",
+    "secret_key": "xxxxxxxx"
   }
 }
 ```
 
-2. 获取腾讯云 API Key：
-   - 访问 https://console.cloud.tencent.com/cam/capi
-   - 新建密钥获取 `SecretId` 和 `SecretKey`
+获取密钥：https://console.cloud.tencent.com/cam/capi
 
-## 使用方法
+## 使用
 
-```bash
-python3 tencent_asr_working.py <音频文件.ogg>
-```
-
-## 示例
+### 命令行
 
 ```bash
-python3 tencent_asr_working.py /path/to/voice.ogg
-# 输出：帮我看看今天AI圈儿都发生了什么大事儿
+python3 asr.py voice.ogg
 ```
 
-## 支持的格式
+### Python 导入
 
-- ogg-opus（飞书语音默认格式）
-- 其他格式可先使用 audio-tools 技能转换
+```python
+from asr import transcribe
+
+text = transcribe("voice.ogg")
+print(text)
+```
+
+### 指定密钥（可选）
+
+```python
+from asr import transcribe
+
+text = transcribe("voice.ogg", 
+                  secret_id="AKIDxxx", 
+                  secret_key="xxx")
+```
 
 ## 文件说明
 
-- `tencent_asr_working.py` - 主脚本，从 config.json 读取配置
-- `config.json` - API 密钥配置文件（已脱敏）
-- `tencent_asr.py` - 旧版（硬编码，已废弃）
-- `tencent_asr_full.py` - 旧版（硬编码，已废弃）
+| 文件 | 说明 |
+|------|------|
+| `asr.py` | 主程序，语音转文字 |
+| `config.json` | 密钥配置文件（**勿提交到Git**） |
+| `config.example.json` | 配置示例 |
+| `deprecated/` | 旧版本存档 |
+
+## 安全提示
+
+⚠️ `config.json` 包含敏感密钥，已添加 `.gitignore` 保护，请勿手动提交到代码仓库。
+
+## 许可证
+
+MIT

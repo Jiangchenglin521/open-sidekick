@@ -1,0 +1,27 @@
+# Chinese ASR - 腾讯云语音识别
+# 忽略配置文件（包含密钥）
+config.json
+
+# 忽略 Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 忽略测试音频
+test_audio/
+*.ogg
+*.mp3
+*.wav
+
+# 忽略 IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 忽略 OS 文件
+.DS_Store
+Thumbs.db

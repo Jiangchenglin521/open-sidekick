@@ -44,19 +44,42 @@
 - 建立 .gitignore 保护敏感信息
 - 删除冗余文件，保持工作区整洁
 
+### 2026.03 - v0.2.0 发布
+- ✅ chinese-asr v1.0 - 重构为可发布版本，统一入口
+- ✅ dueros-evokehome v1.0 - 新增 DuerOS 智能家居控制
+- ✅ 新增做事方法论（先斩后奏原则）
+- ✅ 完善配置管理，Token 过期提醒机制
+
 ---
 
 ## 技能清单 (Skills)
 
+### 核心技能
+
 | 技能 | 说明 | 状态 |
 |------|------|------|
-| **chinese-asr** | 腾讯云语音识别，语音转文字 | ✅ 可用 |
+| **chinese-asr** | 腾讯云语音识别，语音转文字 | ✅ 已发布 v1.0 |
+| **dueros-evokehome** | DuerOS 智能家居控制 | ✅ 已发布 v1.0 |
 | **super-websearch-realtime** | 实时网络搜索 | ✅ 可用 |
 | **tavily-search** | Tavily AI 搜索引擎 | ✅ 可用 |
 | **audio-tools** | 音频处理工具集 | ✅ 可用 |
 | **imap-smtp-email** | 邮件收发（IMAP/SMTP） | ✅ 可用 |
 | **proactive-agent** | 主动型 Agent 模式 | 🔧 探索中 |
 | **find-skills** | 智能技能发现 | ✅ 可用 |
+
+### 技能详情
+
+#### 🎤 chinese-asr v1.0
+腾讯云语音识别，支持中文语音转文字。
+- 支持格式：ogg-opus、mp3、wav
+- 使用方式：`python3 asr.py voice.ogg`
+- 位置：`skills/chinese-asr/`
+
+#### 🏠 dueros-evokehome v1.0
+通过小度官方 API 控制智能家居设备。
+- 支持：台灯开关、亮度调节、设备状态查询
+- 使用方式：语音指令或 Python API
+- 位置：`skills/dueros-evokehome/`
 
 ---
 

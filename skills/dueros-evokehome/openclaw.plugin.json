@@ -1,0 +1,18 @@
+{
+  "id": "dueros-evokehome",
+  "name": "DuerOS EvokeHome",
+  "version": "1.0.0",
+  "description": "控制 DuerOS 智能家居设备",
+  "author": "Your Name",
+  "license": "MIT",
+  "main": "src/index.js",
+  "keywords": ["dueros", "smarthome", "xiaodu", "iot"],
+  "skills": ["./SKILL.md"],
+  "config": {
+    "schema": "./config.schema.json"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "openclaw": ">=2026.1.0"
+  }
+}
