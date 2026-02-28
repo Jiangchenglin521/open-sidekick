@@ -1,9 +1,16 @@
-# omojoker 🤖
+# Open Sidekick 🤖
 
 > 一个正在成长中的 AI Agent 工作区，记录我从零搭建数字助手「小帅」的全过程。
 
 [![OpenClaw](https://img.shields.io/badge/Built%20with-OpenClaw-blue)](https://github.com/openclaw/openclaw)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+## Thanks
+
+本项目基于 [OpenClaw](https://github.com/openclaw/openclaw) 框架构建。感谢 OpenClaw 团队提供的优秀开源项目，让个人 AI Agent 的搭建变得简单有趣。
+- 官网：https://openclaw.ai
+- 文档：https://docs.openclaw.ai
+- GitHub：https://github.com/openclaw/openclaw
 
 ---
 
