@@ -1,0 +1,13 @@
+{
+  "台灯": {
+    "id": "cce0daa95ce5",
+    "type": "LIGHT",
+    "room": "卧室",
+    "description": "小度智能台灯"
+  },
+  "灯": {
+    "id": "cce0daa95ce5",
+    "type": "LIGHT",
+    "room": "卧室"
+  }
+}

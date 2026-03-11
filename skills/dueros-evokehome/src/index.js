@@ -1,172 +1,181 @@
+/**
+ * DuerOS 智能家居主技能入口
+ * 负责意图解析、设备识别、子技能路由
+ */
+
 import { DuerOSClient } from './client.js';
-import { DeviceManager } from './device-manager.js';
-import { ConfigManager } from './config.js';
+import { SkillRouter } from './router.js';
+import { DeviceRegistry } from './device-registry.js';
+import { loadConfig } from './utils.js';
+
+// 子技能导入（动态加载）
+const skillModules = {};
 
 /**
- * DuerOS EvokeHome Skill
- * 控制 DuerOS 智能家居设备
+ * 动态加载子技能
+ * 支持本地路径和npm包两种方式
  */
-
-let client = null;
-let deviceManager = null;
-
-/**
- * 初始化 Skill
- */
-export async function init(context) {
-  const config = await ConfigManager.load();
-  
-  if (!config.accessToken) {
-    return {
-      status: 'error',
-      message: '未配置 DuerOS Access Token，请运行: evokehome setup'
-    };
+async function loadSubSkill(skillName) {
+  if (skillModules[skillName]) {
+    return skillModules[skillName];
   }
   
-  client = new DuerOSClient(config);
-  deviceManager = new DeviceManager(client);
-  
-  // 检查 Token 过期
-  if (config.tokenExpiryCheck) {
-    await checkTokenExpiry(config);
+  // 尝试从本地路径加载（相对于当前目录的skills文件夹）
+  try {
+    const localPath = `../../dueros-${skillName}/index.js`;
+    const module = await import(localPath);
+    skillModules[skillName] = module.default || module;
+    return skillModules[skillName];
+  } catch (localError) {
+    // 本地加载失败，尝试npm包
+    try {
+      const module = await import(`@openclaw/dueros-${skillName}`);
+      skillModules[skillName] = module.default || module;
+      return skillModules[skillName];
+    } catch (npmError) {
+      console.error(`子技能 ${skillName} 加载失败:`, localError.message);
+      return null;
+    }
   }
-  
-  return {
-    status: 'ready',
-    message: 'DuerOS EvokeHome 已就绪'
-  };
 }
 
 /**
- * 处理控制指令
+ * 主技能处理器
  */
-export async function handle(message, context) {
-  if (!client) {
-    return '请先初始化 EvokeHome: evokehome setup';
+export async function processIntent(userInput, context = {}) {
+  const config = loadConfig();
+  const client = new DuerOSClient(config);
+  const registry = new DeviceRegistry(config.devices || {});
+  const router = new SkillRouter(registry);
+  
+  // 1. 解析用户意图
+  const intent = router.parseIntent(userInput);
+  console.log('🎯 识别意图:', intent);
+  
+  // 2. 确定目标设备
+  const device = registry.findDevice(intent.deviceHint, context.room);
+  if (!device) {
+    return {
+      success: false,
+      message: `❌ 找不到设备"${intent.deviceHint}"，请检查设备名称或运行"evokehome devices"查看可用设备。`
+    };
+  }
+  console.log('📱 目标设备:', device.name, `(${device.type})`);
+  
+  // 3. 确定子技能
+  const subSkillName = router.getSubSkillForDevice(device.type, intent.actionType);
+  if (!subSkillName) {
+    return {
+      success: false,
+      message: `❌ 设备类型"${device.type}"暂不支持"${intent.actionType}"操作。`
+    };
+  }
+  console.log('🔧 路由到子技能:', subSkillName);
+  
+  // 4. 加载并执行子技能
+  const subSkill = await loadSubSkill(subSkillName);
+  if (!subSkill) {
+    return {
+      success: false,
+      message: `❌ 子技能"${subSkillName}"加载失败，请检查是否已安装。`
+    };
   }
   
-  const command = parseCommand(message);
+  // 5. 执行控制
+  try {
+    const result = await subSkill.execute({
+      device,
+      intent,
+      client,
+      params: intent.params
+    });
+    
+    return {
+      success: true,
+      message: result.message || '✅ 操作成功',
+      data: result.data
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `❌ 操作失败: ${error.message}`
+    };
+  }
+}
+
+/**
+ * 查询设备状态（通用）
+ */
+export async function queryDeviceStatus(deviceName, context = {}) {
+  const config = loadConfig();
+  const client = new DuerOSClient(config);
+  const registry = new DeviceRegistry(config.devices || {});
+  
+  const device = registry.findDevice(deviceName, context.room);
+  if (!device) {
+    return { success: false, message: `❌ 找不到设备"${deviceName}"` };
+  }
   
   try {
-    switch (command.action) {
-      case 'turn_on':
-        return await deviceManager.turnOn(command.device);
-        
-      case 'turn_off':
-        return await deviceManager.turnOff(command.device);
-        
-      case 'set_brightness':
-        return await deviceManager.setBrightness(
-          command.device, 
-          command.params.brightness
-        );
-        
-      case 'status':
-        return await deviceManager.getStatus(command.device);
-        
-      case 'list':
-        return await deviceManager.listDevices();
-        
-      default:
-        return getHelpMessage();
-    }
-  } catch (error) {
-    console.error('EvokeHome 错误:', error);
-    return `操作失败: ${error.message}`;
-  }
-}
-
-/**
- * 解析自然语言指令
- */
-function parseCommand(message) {
-  const lower = message.toLowerCase();
-  
-  // 查询列表
-  if (/(列表|所有设备|有什么设备)/.test(lower)) {
-    return { action: 'list' };
-  }
-  
-  // 查询状态
-  if (/(状态|怎么样|亮了没|开了吗)/.test(lower)) {
-    const device = extractDevice(lower) || 'all';
-    return { action: 'status', device };
-  }
-  
-  // 打开
-  if (/(打开|开启|开灯)/.test(lower)) {
-    const device = extractDevice(lower) || 'default';
-    return { action: 'turn_on', device };
-  }
-  
-  // 关闭
-  if (/(关闭|关掉|关灯)/.test(lower)) {
-    const device = extractDevice(lower) || 'default';
-    return { action: 'turn_off', device };
-  }
-  
-  // 调节亮度
-  const brightnessMatch = lower.match(/(\d+)/);
-  if (brightnessMatch && /(亮度|调亮|调暗|调到)/.test(lower)) {
-    const device = extractDevice(lower) || 'default';
+    const status = await client.getDeviceStatus(device.id);
     return {
-      action: 'set_brightness',
-      device,
-      params: { brightness: parseInt(brightnessMatch[1]) }
+      success: true,
+      message: formatStatusMessage(device, status),
+      data: status
     };
-  }
-  
-  return { action: 'unknown' };
-}
-
-/**
- * 提取设备名称
- */
-function extractDevice(message) {
-  const devices = ['台灯', '灯', '电视', '空调', '窗帘'];
-  for (const device of devices) {
-    if (message.includes(device)) {
-      return device;
-    }
-  }
-  return null;
-}
-
-/**
- * 检查 Token 过期
- */
-async function checkTokenExpiry(config) {
-  if (!config.expiresAt) return;
-  
-  const now = Date.now();
-  const expiry = new Date(config.expiresAt).getTime();
-  const daysUntilExpiry = Math.floor((expiry - now) / (1000 * 60 * 60 * 24));
-  
-  if (daysUntilExpiry < 3 && daysUntilExpiry > 0) {
-    console.warn(`⚠️ DuerOS Token 将在 ${daysUntilExpiry} 天后过期，建议续期`);
-    // 这里可以发送通知给主人
-  } else if (daysUntilExpiry <= 0) {
-    console.error('❌ DuerOS Token 已过期，请运行: evokehome refresh');
+  } catch (error) {
+    return { success: false, message: `❌ 查询失败: ${error.message}` };
   }
 }
 
 /**
- * 帮助信息
+ * 格式化状态消息
  */
-function getHelpMessage() {
-  return `🏠 DuerOS EvokeHome 帮助
-
-使用方法:
-• "打开台灯" - 开灯
-• "关闭台灯" - 关灯  
-• "把台灯调到50%" - 调亮度
-• "台灯状态" - 查看状态
-• "列出所有设备" - 查看设备列表
-
-设置:
-• evokehome setup - 配置 Token
-• evokehome refresh - 刷新 Token
-• evokehome devices - 管理设备映射`;
+function formatStatusMessage(device, status) {
+  const attrs = status.attributes || {};
+  const parts = [`📱 ${device.name}`];
+  
+  if (attrs.connectivity) {
+    parts.push(attrs.connectivity.value === 'REACHABLE' ? '🟢 在线' : '🔴 离线');
+  }
+  
+  if (attrs.turnOnState) {
+    parts.push(['ON', 'on'].includes(attrs.turnOnState.value) ? '💡 开启' : '⚫ 关闭');
+  }
+  
+  if (attrs.brightness) {
+    parts.push(`亮度 ${attrs.brightness.value}%`);
+  }
+  
+  if (attrs.temperature) {
+    parts.push(`温度 ${attrs.temperature.value}°C`);
+  }
+  
+  if (attrs.mode) {
+    parts.push(`模式 ${attrs.mode.value}`);
+  }
+  
+  return parts.join(' | ');
 }
 
-export { DuerOSClient, DeviceManager, ConfigManager };
+/**
+ * 列出所有设备
+ */
+export async function listDevices() {
+  const config = loadConfig();
+  const client = new DuerOSClient(config);
+  
+  try {
+    const devices = await client.getDeviceList();
+    return {
+      success: true,
+      message: `📱 发现 ${devices.length} 个设备`,
+      data: devices
+    };
+  } catch (error) {
+    return { success: false, message: `❌ 获取失败: ${error.message}` };
+  }
+}
+
+// 默认导出
+export default { processIntent, queryDeviceStatus, listDevices };

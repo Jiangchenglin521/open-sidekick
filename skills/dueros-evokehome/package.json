@@ -1,43 +1,28 @@
 {
   "name": "@openclaw/dueros-evokehome",
-  "version": "1.0.0",
-  "description": "DuerOS 智能家居控制 - 语音控制小度生态设备",
+  "version": "2.0.0",
+  "description": "DuerOS 智能家居主技能 - 分层级设备控制",
   "type": "module",
   "main": "src/index.js",
+  "bin": {
+    "evokehome": "bin/evokehome.js",
+    "dueros": "bin/dueros.js"
+  },
   "scripts": {
-    "test": "node --test src/**/*.test.js",
-    "lint": "eslint src/",
-    "build": "tsc --noEmit"
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
   },
   "keywords": [
     "openclaw",
+    "skill",
     "dueros",
-    "smarthome",
-    "xiaodu",
     "smart-home",
-    "iot"
+    "xiaodu"
   ],
-  "author": "Your Name",
+  "author": "",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourname/dueros-evokehome"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
   "dependencies": {},
   "peerDependencies": {
-    "openclaw": ">=2026.1.0"
-  },
-  "openclaw": {
-    "extensions": ["./src/index.js"],
-    "skill": {
-      "id": "dueros-evokehome",
-      "name": "DuerOS EvokeHome",
-      "description": "控制 DuerOS 智能家居设备",
-      "emoji": "🏠",
-      "version": "1.0.0"
-    }
+    "openclaw": ">=1.0.0"
   }
 }
