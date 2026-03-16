@@ -24,6 +24,14 @@
     "imap-smtp-email": {
       "version": "0.0.2",
       "installedAt": 1771311654124
+    },
+    "1password": {
+      "version": "1.0.1",
+      "installedAt": 1773661022308
+    },
+    "feishu-drive": {
+      "version": "1.0.0",
+      "installedAt": 1773661081855
     }
   }
 }
