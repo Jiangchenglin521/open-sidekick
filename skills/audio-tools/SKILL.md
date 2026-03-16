@@ -1,14 +1,6 @@
 ---
 name: audio-tools
-description: Audio file processing utilities including format conversion.
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🔊",
-        "requires": { "bins": ["ffmpeg"] },
-      },
-  }
+description: Audio file processing utilities including format conversion using ffmpeg. Use when converting audio formats or extracting audio from video files.
 ---
 
 # Audio Tools

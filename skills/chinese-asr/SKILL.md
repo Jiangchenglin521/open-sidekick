@@ -1,13 +1,6 @@
 ---
 name: chinese-asr
-version: "1.0.0"
-description: 腾讯云语音识别 - 中文语音转文字
-metadata:
-  openclaw:
-    emoji: 🎤
-    category: media
-    requires:
-      config: [tencent_asr]
+description: 腾讯云语音识别 - 中文语音转文字。支持多种格式：ogg-opus、mp3、wav，实时转录，响应快速。需要配置 tencent_asr 密钥。
 ---
 
 # Chinese ASR 🎤

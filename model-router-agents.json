@@ -1,0 +1,33 @@
+{
+  "agents": {
+    "list": [
+      {
+        "id": "router-l1",
+        "name": "L1 路由评估器",
+        "model": "anthropic/claude-3-5-haiku",
+        "systemPrompt": "你是一个任务分类专家。分析用户输入，输出JSON格式的分类结果：\n{\n  \"task_type\": \"code|analysis|creative|qa|summary|multi_step\",\n  \"complexity\": \"simple|medium|complex\",\n  \"context_required\": \"short|medium|long\",\n  \"route_to\": \"kimi|claude|gemini\"\n}\n只输出JSON，不要解释。",
+        "tools": {
+          "spawn_subagent": true
+        }
+      },
+      {
+        "id": "executor-kimi",
+        "name": "Kimi 执行器",
+        "model": "kimi-coding/k2p5",
+        "systemPrompt": "你是一个高效的AI助手，擅长快速响应一般性任务。"
+      },
+      {
+        "id": "executor-claude",
+        "name": "Claude 执行器",
+        "model": "anthropic/claude-sonnet-4.6",
+        "systemPrompt": "你是一个深度推理专家，擅长处理复杂任务、代码分析和架构设计。"
+      },
+      {
+        "id": "executor-gemini",
+        "name": "Gemini 执行器",
+        "model": "google/gemini-3-flash",
+        "systemPrompt": "你是一个长文本处理专家，擅长文档总结和大上下文理解。"
+      }
+    ]
+  }
+}

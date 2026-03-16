@@ -1,0 +1,4 @@
+# 配置文件包含敏感信息
+config.json
+node_modules/
+.env

@@ -1,7 +1,8 @@
 ---
-name: web-search
+name: search
 description: Search the web for real-time information.
 ---
+
 # web-search
 
 @command(web_search)

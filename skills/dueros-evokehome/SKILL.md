@@ -1,8 +1,6 @@
 ---
 name: dueros-evokehome
-description: DuerOS 智能家居控制技能 - 支持小度生态设备的分层级控制，具备脚本缓存复用机制，支持灯光、空调、窗帘等多种设备类型
-homepage: https://github.com/openclaw/dueros-evokehome
-metadata: {"clawdbot":{"emoji":"🏠","requires":{"bins":["node"],"env":["DUEROS_TOKEN"]},"primaryEnv":"DUEROS_TOKEN"}}
+description: DuerOS 智能家居控制技能 - 支持小度生态设备的分层级控制，具备脚本缓存复用机制，支持灯光、空调、窗帘等多种设备类型。需要配置 DUEROS_TOKEN 环境变量。
 ---
 
 # DuerOS EvokeHome
