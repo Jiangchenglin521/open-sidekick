@@ -4,9 +4,10 @@
 
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
+import { fileURLToPath } from 'url';
 
-const CONFIG_DIR = path.join(os.homedir(), '.config', 'dueros-evokehome');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const CONFIG_DIR = path.join(__dirname, '..', 'config');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 
 const DEFAULT_CONFIG = {

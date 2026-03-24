@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "evolver": "^0.3.7"
+    "evolver": "^0.3.7",
+    "pptxgenjs": "^4.0.1"
   }
 }

@@ -1,12 +1,11 @@
 {
   "name": "@openclaw/dueros-evokehome",
   "version": "2.0.0",
-  "description": "DuerOS 智能家居主技能 - 分层级设备控制",
+  "description": "DuerOS 智能家居控制技能 - 基于设备能力类型架构",
   "type": "module",
   "main": "src/index.js",
   "bin": {
-    "evokehome": "bin/evokehome.js",
-    "dueros": "bin/dueros.js"
+    "evokehome": "bin/evokehome.js"
   },
   "scripts": {
     "test": "vitest",

@@ -16,10 +16,10 @@ skill-name/
 ├── SKILL.md                 # 必需 - 技能主文件
 │   ├── YAML frontmatter     # 必需 - 元数据
 │   └── Markdown 内容        # 必需 - 使用说明
+├── _meta.json               # 必需 - 技能识别元数据 (见下方元数据文件章节)
 ├── scripts/                 # 可选 - 可执行脚本
 ├── references/              # 可选 - 参考文档
 ├── assets/                  # 可选 - 输出资源文件
-├── _meta.json               # 可选 - 发布元数据
 └── config.json              # 可选 - 配置文件
 ```
 
@@ -262,6 +262,7 @@ zip -r {skill-name}.skill .
 - [ ] 技能名称符合规范 (小写、数字、连字符，<64字符)
 - [ ] description 包含功能和触发场景
 - [ ] frontmatter 仅包含 name 和 description
+- [ ] **_meta.json 文件已创建** (关键！确保技能可被识别加载)
 - [ ] 正文使用祈使/不定式形式
 - [ ] 正文控制在 500 行以内
 - [ ] 需要时包含 scripts/、references/、assets/
@@ -281,11 +282,13 @@ zip -r {skill-name}.skill .
 | 前端 Web 应用构建器 | `frontend-webapp-builder` |
 | BigQuery 查询助手 | `bigquery-assistant` |
 
-## 元数据文件 (可选)
+## 元数据文件
 
-### _meta.json
+### _meta.json (必需，用于技能识别)
 
-发布时使用：
+**重要：** `_meta.json` 文件是 OpenClaw 正确识别和加载技能的关键元数据。没有此文件，技能可能无法被系统识别，导致用户请求时技能不被触发。
+
+**必须包含：**
 ```json
 {
   "ownerId": "...",
@@ -294,6 +297,22 @@ zip -r {skill-name}.skill .
   "publishedAt": 1768114920544
 }
 ```
+
+**字段说明：**
+- `ownerId`: 技能所有者唯一标识（可使用任意随机字符串）
+- `slug`: 技能标识符，应与技能目录名一致
+- `version`: 语义化版本号
+- `publishedAt`: 发布时间戳（毫秒）
+
+**为什么必需：**
+虽然 OpenClaw 会尝试从 `SKILL.md` 解析 frontmatter，但某些复杂情况可能导致解析失败：
+- description 过长或包含多行文本
+- 包含特殊字符或中文标点
+- YAML 格式边界情况
+
+`_meta.json` 提供确定性的技能识别机制，确保技能始终可被加载。
+
+**最佳实践：** 始终为技能创建 `_meta.json` 文件，即使 `SKILL.md` 看起来格式正确。
 
 ### config.json
 

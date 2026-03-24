@@ -1,171 +1,263 @@
 # DuerOS EvokeHome
 
-通过小度官方 API 控制你的智能家居设备。
+小度智能家居控制技能，采用**饱和式攻击执行架构**，支持21种设备能力类型，执行后状态验证，执行缓存复用。
 
-## 功能特性
+## 核心特性
 
-- ✅ 开关控制（灯、插座等）
-- ✅ 亮度调节（0-100%）
-- ✅ 色温调节（暖光/冷光）
-- ✅ 模式切换（夜间/日间/阅读/放松）
-- ✅ 设备状态查询
-- ✅ 多设备支持
-- ✅ Token 过期提醒
-- ✅ 自动续期支持
+- ⚡ **饱和式攻击** - 复合指令连续发送，不阻塞、不等待确认
+- 🔍 **状态验证** - 执行后查询设备状态，向用户汇报实际结果
+- 💾 **执行缓存** - 成功指令自动缓存，下次直接复用
+- 🎯 **21种能力** - 完整覆盖 DuerOS 智能家居协议
+- 🔧 **智能解析** - 关键词匹配 + NLU，支持复合指令
+- 📝 **自然语言** - 像说话一样控制设备
 
 ## 安装
 
 ```bash
-# 通过 npm 安装
-npm install -g @openclaw/dueros-evokehome
+# 克隆或复制到 OpenClaw skills 目录
+cd ~/.openclaw/workspace/skills/dueros-evokehome
 
-# 或通过 OpenClaw 插件安装
-openclaw plugin install dueros-evokehome
+# 安装依赖
+npm install
 ```
 
 ## 快速开始
 
-### 1. 获取 DuerOS Token
+### 1. 获取 Token
 
-访问百度授权页面获取 Access Token 和 Refresh Token：
+1. 访问 [小度官网](https://xiaodu.baidu.com) 登录
+2. F12 打开开发者工具 → Network 标签
+3. 操作任意设备，找到 `directivesend` 请求
+4. 复制 Headers 中 Cookie 的 `AUTHORIZATION=access-` 后的字符串
 
-```
-https://openapi.baidu.com/oauth/2.0/authorize
-```
-
-或使用百度开发者工具获取。
-
-### 2. 配置 Token
+### 2. 配置
 
 ```bash
-evokehome setup
-# 输入你的 Access Token 和 Refresh Token
+# 编辑 Token 配置
+nano config/config.json
 ```
 
-### 3. 开始使用
-
-直接对助手说：
-- "打开台灯"
-- "把台灯调到 50%"
-- "查询设备状态"
-
-## 使用指南
-
-### 语音指令
-
-| 指令 | 说明 |
-|------|------|
-| 打开 [设备名] | 开启设备 |
-| 关闭 [设备名] | 关闭设备 |
-| 把 [设备名] 调到 [数字]% | 调节亮度 |
-| [设备名] 状态 | 查看设备状态 |
-| 列出所有设备 | 查看已绑定设备 |
-
-### CLI 命令
+```json
+{
+  "accessToken": "your_token_here"
+}
+```
 
 ```bash
-# 设置 Token
-evokehome setup
-
-# 查看 Token 状态
-evokehome status
-
-# 刷新 Token
-evokehome refresh
-
-# 查看设备列表
-evokehome devices
-
-# 启用过期提醒
-evokehome config --expiry-check true
-
-# 启用自动续期
-evokehome config --auto-refresh true
+# 编辑设备配置
+nano config/devices.json
 ```
-
-### 快速控制脚本
-
-```bash
-# 控制台灯
-node control.js on          # 开灯
-node control.js off         # 关灯
-node control.js b 50        # 调亮度
-node control.js night       # 夜间模式
-node control.js warm        # 暖光
-node control.js cool        # 冷光
-node control.js status      # 查看状态
-```
-
-### 设备映射
-
-编辑 `~/.config/dueros-evokehome/devices.json`：
 
 ```json
 {
   "台灯": {
-    "id": "cce0daa95ce5",
-    "type": "LIGHT",
-    "room": "卧室",
-    "description": "小度智能台灯"
-  },
-  "客厅灯": {
     "id": "your_device_id",
-    "type": "LIGHT",
-    "room": "客厅"
+    "room": "卧室"
   }
 }
 ```
 
-## Token 管理
-
-### 过期提醒
+### 3. 开始使用
 
 ```bash
-# 开启提醒（Token 将在过期前 3 天提醒你）
-evokehome config --expiry-check true
+# 简单控制
+./bin/evokehome.js "打开台灯"
+
+# 复合指令（自动拆分饱和发送）
+./bin/evokehome.js "开启台灯，亮度最高，色温最低"
+
+# 连续操作
+./bin/evokehome.js "连续开关台灯3次"
+
+# 查询状态
+./bin/evokehome.js status 台灯
 ```
 
-### 自动续期
+## 使用示例
+
+### 台灯控制
 
 ```bash
-# 开启自动续期（需要配置 Refresh Token）
-evokehome config --auto-refresh true
+# 开灯
+evokehome "打开台灯"
+
+# 调节亮度
+evokehome "台灯亮度调到50"
+evokehome "台灯亮度最高"
+
+# 调节色温
+evokehome "台灯色温调到4000"
+evokehome "台灯暖光"
+evokehome "台灯冷光"
+
+# 复合指令
+evokehome "开启台灯，亮度最高，色温最低"
 ```
 
-### 手动刷新
+### 摄像头控制
 
 ```bash
-evokehome refresh
+# 开启
+evokehome "打开摄像头"
+
+# 转向
+evokehome "摄像头左转"
+evokehome "摄像头右转"
+evokehome "摄像头上转"
+evokehome "摄像头下转"
+
+# 复合指令
+evokehome "开启摄像头，右转90度"
 ```
 
-## 技术说明
+### 空调控制
 
-### API 端点
+```bash
+# 开关
+evokehome "打开空调"
+evokehome "关闭空调"
 
-- 设备列表: `GET /devicelist`
-- 设备控制: `POST /directivesend`
-- Token 刷新: `POST /oauth/2.0/token`
+# 温度
+evokehome "空调温度调到26度"
+evokehome "空调升温"
+evokehome "空调降温"
 
-### 支持的设备类型
+# 模式
+evokehome "空调制冷模式"
+evokehome "空调制热模式"
+```
 
-| 类型 | 说明 |
-|------|------|
-| LIGHT | 灯具 |
-| DESK_LAMP | 台灯 |
-| TV_SET | 电视 |
-| AIR_CONDITIONER | 空调 |
-| SOCKET | 智能插座 |
-| CURTAIN | 窗帘 |
+## CLI 命令
 
-### 数据存储
+```bash
+# 执行自然语言指令
+evokehome "<指令>"
 
-配置文件位置: `~/.config/dueros-evokehome/`
+# 查询设备状态
+evokehome status <设备名>
+
+# 列出所有设备
+evokehome list
+
+# 查看执行缓存
+evokehome cache
+
+# 清除执行缓存
+evokehome cache clear
+
+# 查看支持的21种能力
+evokehome capabilities
+```
+
+## 执行架构
+
+### 饱和式攻击流程
 
 ```
-~/.config/dueros-evokehome/
-├── config.json     # Token 和设置
-├── devices.json    # 设备映射
-└── logs/           # 运行日志
+用户: "开启台灯，亮度最高"
+    ↓
+[解析] 拆分为: [TurnOn, SetBrightness(100)]
+    ↓
+[检查缓存] 命中? 直接使用缓存消息 : 生成新消息
+    ↓
+[饱和发送] 连续发送2条消息（不等响应）
+    ↓
+[查询状态] GET 设备当前状态
+    ↓
+[验证结果] 对比预期 vs 实际状态
+    ↓
+[汇报] ✅ 台灯已开启，亮度100%
+    ↓
+[缓存] 首次成功则缓存指令序列
+```
+
+### 与旧架构的区别
+
+| 特性 | 旧架构 | 新架构（当前） |
+|------|--------|---------------|
+| 执行方式 | 逐个发送，等待响应 | 饱和式攻击，连续发送 |
+| 能力校验 | 发送前检查 capabilities | 不检查，直接发送 |
+| 状态检查 | 发送过程中检查 | 发送后统一查询验证 |
+| 失败处理 | 发送失败即停止 | 发完再查状态汇报 |
+| 缓存机制 | 脚本缓存 | 执行缓存（消息体级别） |
+
+## 支持的21种能力
+
+| 类别 | 能力 | 说明 |
+|------|------|------|
+| 基础 | switch | 打开关闭设备 |
+| 基础 | lighting | 可控灯光设备（亮度、色温） |
+| 基础 | temperature | 可控温度设备 |
+| 环境 | fanSpeed | 可控风速设备 |
+| 环境 | speed | 可控速度设备 |
+| 环境 | mode | 设备模式设置 |
+| 环境 | humidity | 可控湿度类设备 |
+| 媒体 | tvChannel | 电视频道设置 |
+| 媒体 | volume | 可控音量设备 |
+| 运动 | direction | 可控方向设备（摄像头） |
+| 运动 | height | 可控高度设备 |
+| 运动 | floor | 可控楼层设备 |
+| 特性 | suction | 可控吸力设备 |
+| 特性 | waterLevel | 可控水量设备 |
+| 特性 | charge | 可控电量设备 |
+| 特性 | gear | 可控挡位类设备 |
+| 特性 | flow | 可控水流类设备 |
+| 功能 | lock | 可锁定设备 |
+| 功能 | print | 打印设备 |
+| 功能 | timer | 可控定时设备 |
+| 功能 | reset | 可复位设备 |
+
+## 项目结构
+
+```
+dueros-evokehome/
+├── bin/
+│   └── evokehome.js           # CLI 入口
+├── src/
+│   ├── index.js               # 主入口
+│   ├── client.js              # DuerOS API 客户端
+│   ├── intent-parser.js       # 意图解析器
+│   ├── capability-registry.js # 设备注册中心
+│   ├── execution-cache.js     # 执行缓存
+│   └── capabilities/          # 21种能力模块
+│       ├── switch.js
+│       ├── lighting.js
+│       ├── temperature.js
+│       └── ... (共21个)
+├── config/
+│   ├── config.json            # Token配置
+│   └── devices.json           # 设备列表
+├── templates/                 # 配置模板
+├── tests/                     # 测试文件
+└── SKILL.md                   # 详细文档
+```
+
+## 配置说明
+
+### config.json
+
+```json
+{
+  "accessToken": "your_access_token",
+  "refreshToken": "optional_refresh_token"
+}
+```
+
+### devices.json
+
+**注意：** 只需要设备ID，不需要声明 capabilities
+
+```json
+{
+  "台灯": {
+    "id": "device_id_here",
+    "room": "卧室"
+  },
+  "摄像头": {
+    "id": "device_id_here",
+    "room": "客厅"
+  }
+}
 ```
 
 ## 故障排除
@@ -178,85 +270,64 @@ evokehome refresh
 
 ### Token 过期
 
-```bash
-evokehome refresh
-```
+- 重新按照"获取 Token"步骤获取新 Token
+- 更新 config/config.json
 
 ### 找不到设备
 
-1. 确认设备已绑定到该账号
-2. 检查 `devices.json` 中的映射
-3. 运行 `evokehome devices` 刷新设备列表
+- 检查 devices.json 中的设备名和 ID
+- 运行 `evokehome list` 确认设备配置正确
 
-### 权限问题
+### 指令执行失败
 
-确保配置文件目录有正确的权限：
+- 系统会自动查询状态并汇报失败原因
+- 检查设备是否支持该操作（如台灯不支持转向）
+- 查看执行缓存: `evokehome cache`
 
-```bash
-chmod 700 ~/.config/dueros-evokehome
-chmod 600 ~/.config/dueros-evokehome/config.json
+## 技术说明
+
+### API 端点
+
+- 设备控制: `POST /directivesend`
+- 设备状态: `GET /devicestate`
+
+### 执行缓存位置
+
+```
+.cache/execution-cache.json
+```
+
+缓存格式:
+```json
+{
+  "台灯::开启台灯亮度最高": {
+    "deviceName": "台灯",
+    "messages": [...],
+    "successCount": 5,
+    "lastUsed": 1710685740123
+  }
+}
 ```
 
 ## 开发
 
 ```bash
-# 安装依赖
-npm install
-
 # 运行测试
 npm test
 
-# 代码检查
-npm run lint
+# 清除缓存
+rm .cache/execution-cache.json
 ```
 
-## 项目结构
+## 依赖
 
-```
-dueros-evokehome/
-├── bin/
-│   └── evokehome.js      # CLI 入口
-├── src/
-│   ├── index.js          # Skill 主入口
-│   ├── client.js         # DuerOS API 客户端
-│   ├── device-manager.js # 设备管理
-│   ├── config.js         # 配置管理
-│   └── *.test.js         # 测试文件
-├── templates/
-│   ├── config.json       # 配置模板
-│   └── devices.json      # 设备映射模板
-├── control.js            # 快速控制脚本
-├── test.js               # 简单测试
-├── SKILL.md              # Skill 文档
-├── README.md             # 项目说明
-├── package.json          # 包配置
-└── openclaw.plugin.json  # OpenClaw 插件配置
-```
+- Node.js >= 18
+- DuerOS Access Token
 
-## 安全说明
+## License
 
-- Token 存储在本地 `~/.config/` 目录
-- 不要将 Token 提交到代码仓库
-- 定期更换 Token 以提高安全性
-- 建议启用 Token 过期提醒
-
-## 更新日志
-
-### v1.0.0
-- 初始版本
-- 支持设备开关控制
-- 支持亮度调节
-- 支持 Token 管理
-
-## 许可证
-
-MIT License
-
-## 作者
-
-Your Name
+MIT
 
 ## 相关链接
 
-- [OpenClaw 官网](https://openclaw.ai)
-- [DuerOS 开发者文档](https://dueros.baidu.com)
+- [DuerOS 官方文档](https://dueros.baidu.com/didp/doc/dueros-bot-platform/dbp-smart-home/protocol/control-message_markdown)

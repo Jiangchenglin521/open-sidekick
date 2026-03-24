@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "xiaodu_mcp": {
+      "transport": "streamable-http",
+      "url": "https://xiaodu.baidu.com/dueros_mcp_server/mcp/",
+      "headers": {
+        "ACCESS_TOKEN": "请输入你自己的assess_TOKEN"
+      }
+    }
+  },
+  "imports": []
+}

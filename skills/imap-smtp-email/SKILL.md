@@ -9,6 +9,13 @@ Read, search, and manage email via IMAP protocol. Send email via SMTP. Supports 
 
 ## Configuration
 
+> **提示**：执行任何邮件操作前，**先检查 `.env` 文件是否存在**！不要默认用户未配置。
+> 
+> ```bash
+> # 检查配置是否存在
+> cat ~/.openclaw/workspace/skills/imap-smtp-email/.env 2>/dev/null || echo "未配置"
+> ```
+
 Create `.env` in the skill folder or set environment variables:
 
 ```bash
@@ -188,3 +195,23 @@ npm install
 **TLS/SSL errors:**
 - Match `IMAP_TLS`/`SMTP_SECURE` setting to server requirements
 - For self-signed certs: set `IMAP_REJECT_UNAUTHORIZED=false` or `SMTP_REJECT_UNAUTHORIZED=false`
+
+---
+
+## 📝 Agent 使用指南
+
+### 执行前检查清单
+
+1. **检查配置存在性**（必须先做！）
+   ```bash
+   cat ~/.openclaw/workspace/skills/imap-smtp-email/.env 2>/dev/null && echo "已配置" || echo "未配置"
+   ```
+
+2. **如已配置** → 直接使用，无需询问用户
+
+3. **如未配置** → 询问用户邮箱账号和授权码
+
+### 教训记录
+- 不要默认用户未配置.env文件
+- 先检查现状，再决定是否需要询问
+- 避免重复询问已配置的信息

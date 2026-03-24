@@ -1,0 +1,17 @@
+{
+  "defaultReminderMinutes": 15,
+  "autoScanEmail": true,
+  "scanTime": "08:00",
+  "priorityWeights": {
+    "urgent": 10,
+    "deadline": 8,
+    "today": 5,
+    "tomorrow": 5,
+    "thisWeek": 3,
+    "nextWeek": 2,
+    "client": 3,
+    "boss": 4,
+    "report": 3
+  },
+  "priorityLevels": ["P0", "P1", "P2", "P3"]
+}

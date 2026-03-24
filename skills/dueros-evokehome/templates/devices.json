@@ -1,13 +1,30 @@
 {
+  "_comment": "设备配置文件 - 只需要设备ID和房间",
+  "_doc": "https://dueros.baidu.com/didp/doc/dueros-bot-platform/dbp-smart-home/protocol/control-message_markdown",
+  "_note": "不需要声明 capabilities，系统会直接执行并验证",
+  
   "台灯": {
-    "id": "cce0daa95ce5",
-    "type": "LIGHT",
-    "room": "卧室",
-    "description": "小度智能台灯"
-  },
-  "灯": {
-    "id": "cce0daa95ce5",
-    "type": "LIGHT",
+    "id": "your_device_id_here",
     "room": "卧室"
+  },
+  
+  "客厅灯": {
+    "id": "your_device_id_here", 
+    "room": "客厅"
+  },
+  
+  "空调": {
+    "id": "your_device_id_here",
+    "room": "卧室"
+  },
+  
+  "摄像头": {
+    "id": "your_device_id_here",
+    "room": "客厅"
+  },
+  
+  "扫地机器人": {
+    "id": "your_device_id_here",
+    "room": "全屋"
   }
 }
