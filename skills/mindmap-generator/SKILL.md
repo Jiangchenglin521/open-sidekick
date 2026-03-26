@@ -1,6 +1,8 @@
 ---
 name: mindmap-generator
-description: Generates visual mindmap images from conversations, goals, decisions, and daily priorities — delivered as PNG images viewable directly in Telegram. Use when asked to visualize, map out, or break down topics, priorities, decisions, meeting notes, or weekly reviews.
+description: |
+  思维导图生成器，将对话、目标、决策等内容可视化为PNG图片。
+  Use when: (1) 用户要求可视化思路, (2) 梳理复杂话题或优先级, (3) 会议内容结构化, (4) 决策分析(利弊/风险), (5) 周回顾或日计划可视化。
 metadata: {"openclaw": {"emoji": "🗺️", "requires": {"bins": ["node", "npx"]}}}
 ---
 

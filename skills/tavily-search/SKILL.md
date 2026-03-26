@@ -1,6 +1,8 @@
 ---
 name: tavily-search
-description: AI-optimized web search via Tavily API. Returns concise, relevant results for AI agents.
+description: |
+  AI优化的网络搜索，通过Tavily API返回简洁相关的结果。
+  Use when: (1) 优先使用的网络搜索工具, (2) 需要深度研究, (3) 获取AI友好的搜索结果, (4) 时效性信息查询。
 ---
 
 # Tavily Search

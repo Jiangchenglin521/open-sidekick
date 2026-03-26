@@ -9,29 +9,18 @@ import json
 from pathlib import Path
 from typing import List, Tuple, Optional
 
-# 检查是否使用虚拟环境的Python
+# 添加脚本目录到路径
 script_dir = Path(__file__).parent
-skill_dir = script_dir.parent
-venv_python = skill_dir / '.venv' / 'bin' / 'python'
-
-if sys.executable != str(venv_python) and venv_python.exists():
-    print("⚠️  警告: 未使用虚拟环境的 Python")
-    print(f"   当前: {sys.executable}")
-    print(f"   应使用: {venv_python}")
-    print("   请使用: ./.venv/bin/python scripts/classifier.py")
-    print()
+sys.path.insert(0, str(script_dir))
 
 # 导入嵌入模块
-sys.path.insert(0, os.path.dirname(__file__))
-
-# 检查依赖
 try:
     import numpy as np
     from embedder import encode, cosine_similarity
 except ImportError as e:
     print(f"❌ 依赖缺失: {e}")
-    print("💡 请使用虚拟环境的 Python:")
-    print(f"   {venv_python} {__file__}")
+    print("💡 请先运行依赖管理:")
+    print(f"   python {script_dir}/dependency_manager.py")
     sys.exit(1)
 
 from config_loader import load_rag_config
@@ -41,7 +30,7 @@ class AutoClassifier:
     
     def __init__(self, kb_base_path: str = None):
         if kb_base_path is None:
-            kb_base_path = os.path.expanduser("~/.openclaw/workspace/knowledge-base")
+            kb_base_path = os.path.expanduser("~/.openclaw/workspace/docs-db")
         self.kb_base_path = kb_base_path
         self.notebooks_path = os.path.join(kb_base_path, "notebooks")
         self.config = load_rag_config()
@@ -201,53 +190,21 @@ class AutoClassifier:
             return name or "新项目"
     
     def _call_llm(self, prompt: str) -> str:
-        """调用LLM生成内容"""
-        import subprocess
-        import json
+        """
+        调用LLM生成内容
         
+        逻辑：
+        - 如果配置了 api_key，使用 API 方式调用
+        - 如果没有配置，抛出异常，让上层回退到标题截取
+        """
         llm_config = self.config.get("llm", {})
-        provider = llm_config.get("provider", "openclaw")
         
-        # 如果配置了外部API且不是openclaw，使用API方式
-        if provider != "openclaw" and llm_config.get("api_key"):
+        # 如果配置了 API key，使用 API 方式
+        if llm_config.get("api_key"):
             return self._call_llm_via_api(prompt, llm_config)
         
-        # 尝试调用OpenClaw的agent功能
-        try:
-            # 使用openclaw命令行工具
-            cmd = [
-                "openclaw", "agent", "run",
-                "--message", prompt,
-                "--thinking", "low",
-                "--format", "json"
-            ]
-            
-            timeout = llm_config.get("timeout", 30)
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=timeout
-            )
-            
-            if result.returncode == 0:
-                # 尝试解析JSON
-                try:
-                    data = json.loads(result.stdout)
-                    return data.get("content", result.stdout.strip())
-                except:
-                    return result.stdout.strip()
-            else:
-                # 失败时尝试API方式
-                if llm_config.get("api_key"):
-                    return self._call_llm_via_api(prompt, llm_config)
-                raise RuntimeError(f"openclaw agent failed: {result.stderr}")
-                
-        except Exception:
-            # 如果openclaw不可用，尝试API方式
-            if llm_config.get("api_key"):
-                return self._call_llm_via_api(prompt, llm_config)
-            raise RuntimeError("No LLM available. Please configure LLM in config.json or ensure openclaw agent is available.")
+        # 没有配置 LLM，抛出异常
+        raise RuntimeError("LLM not configured. Please set RAG_API_KEY in .env or use title fallback.")
     
     def _call_llm_via_api(self, prompt: str, llm_config: dict = None) -> str:
         """通过API调用LLM"""

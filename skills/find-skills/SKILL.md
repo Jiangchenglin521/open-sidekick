@@ -1,6 +1,8 @@
 ---
 name: find-skills
-description: Helps users discover and install agent skills when they ask questions like "how do I do X", "find a skill for X", "is there a skill that can...", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.
+description: |
+  技能发现和安装助手，帮助用户从clawhub搜索和安装所需技能。
+  Use when: (1) 用户询问"如何做到某事", (2) 用户想找某个功能的技能, (3) 询问"有没有能...的技能", (4) 扩展助手能力时推荐相关技能。
 ---
 
 # Find Skills

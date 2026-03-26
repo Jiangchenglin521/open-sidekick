@@ -1,8 +1,9 @@
 ---
-name: PPTX Pro
+name: pptx-pro
 slug: pptx-pro
-version: 1.0.0
-description: "终极 PPTX 处理技能 - 结合实操工具与专业工作流指导。支持解压、编辑、打包、创建全流程，附带详细设计规范与 QA 检查清单。"
+description: |
+  PowerPoint演示文稿处理，支持创建、编辑、模板应用、幻灯片生成。
+  Use when: (1) 处理.pptx文件, (2) 创建演示文稿或幻灯片, (3) 编辑现有PPT内容, (4) 生成图表和可视化, (5) 演示文稿格式转换。
 license: MIT-0
 ---
 

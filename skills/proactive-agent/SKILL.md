@@ -1,6 +1,8 @@
 ---
-name: proactive-agent-1-2-4
-description: Transform AI agents from task-followers into proactive partners that anticipate needs and continuously improve. Includes memory architecture with pre-compaction flush (so context survives when the window fills), reverse prompting (surfaces ideas you didn't know to ask for), security hardening, self-healing patterns (diagnoses and fixes its own issues), and alignment systems (stays on mission, remembers who it serves). Battle-tested patterns for agents that learn from every interaction and create value without being asked.
+name: proactive-agent
+description: |
+  主动式代理架构指南，让AI从被动执行转变为主动服务，包含记忆、安全、自愈等模式。
+  Use when: (1) 设计主动型AI代理, (2) 构建记忆系统, (3) 实现自我改进机制, (4) 设置安全加固, (5) 代理行为对齐和持续优化。
 ---
 
 # Proactive Agent

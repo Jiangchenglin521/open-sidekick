@@ -1,6 +1,8 @@
 ---
 name: self-improving-agent
-description: A universal self-improving agent that learns from ALL skill experiences. Uses multi-memory architecture (semantic + episodic + working) to continuously evolve the codebase. Auto-triggers on skill completion/error with hooks-based self-correction.
+description: |
+  自我改进代理系统，从技能执行中学习并持续优化代码库。
+  Use when: (1) 构建终身学习的AI代理, (2) 实现多记忆架构, (3) 技能执行后自动优化, (4) 错误自诊断和修复。
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch
 metadata:
   hooks:

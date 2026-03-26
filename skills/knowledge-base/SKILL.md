@@ -1,13 +1,9 @@
 ---
-name: rag-knowledge-base
-description: >
-  RAG知识库管理，支持文档自动归档、智能分类、混合检索和问答。
-  Use when: (1) 用户上传或提及文档需要归档到知识库,
-  (2) 用户提问需要基于知识库检索回答,
-  (3) 用户查询"xxx相关内容",
-  (4) 用户要求"查一下知识库",
-  (5) 需要基于已有文档回答问题。
-  自动归档支持智能分类到现有notebook或创建新项目。
+name: knowledge-base
+description: |
+  知识库管理，支持文档自动归档、智能分类、混合检索和问答。
+  Use when: (1) 用户上传文档时自动使用该技能进行归档(2) 基于知识库回答问题, (3) 查询已有文档内容, (4) 文档智能分类整理。
+  **重要！！！：只要用户上传文档（PDF/Word/text文本）这三类文件，立即执行归档流程，无需等待用户明确说"归档"。**
 ---
 
 # RAG Knowledge Base
@@ -16,12 +12,22 @@ description: >
 
 ## 快速使用
 
-### 文档归档
+### 文档自动归档
+
+**触发条件**：用户上传、发送或引用任何文档时**自动执行**
 
 ```
-用户: "上传了xxx.pdf" 或 "uploads下有文件"
-→ 自动提取内容 → 智能分类 → 询问确认 → 归档并建立索引
+用户上传PDF/Word/文本 → 立即自动归档
+  ↓
+检查重复 → 提取内容 → 智能分类 → 询问确认 → 归档并建立索引
 ```
+
+**重复检测**：
+- 归档前自动检查该文档是否已存在于知识库
+- 如发现重复，提示用户并跳过归档
+- 检测依据：文件名匹配
+
+**无需等待用户说"归档"，看到文档就动手！**
 
 ### 知识库问答
 
@@ -39,20 +45,19 @@ description: >
 
 ### 智能项目命名
 
-当需要创建新项目时，系统会：
-- 分析文档标题、摘要、关键词
-- 调用LLM生成3-15字的简洁项目名
-- 例如 `"2024_Q1_产品需求文档_v3.pdf"` → 生成 `"产品需求"` 而不是 `"2024_Q1_产品需求"`
-- 失败时回退到原标题截取
+当需要创建新项目时：
+- **配置了 LLM API**：分析文档标题、摘要、关键词，调用 LLM 生成 3-15 字的简洁项目名
+  - 例如 `"2024_Q1_产品需求文档_v3.pdf"` → 生成 `"产品需求"` 而不是 `"2024_Q1_产品需求"`
+- **未配置 LLM**：直接使用标题截取作为项目名
 
-### LLM配置（统一 .env 文件）
+### LLM配置（可选）
 
-配置文件路径：`~/.openclaw/workspace/.env`
+如需使用 LLM 智能命名，在 `~/.openclaw/workspace/.env` 中配置：
 
 ```bash
-# RAG 知识库 LLM 配置
-RAG_LLM_PROVIDER=openclaw
-RAG_API_KEY=
+# RAG 知识库 LLM 配置（可选）
+# 配置了则使用 LLM 智能命名，未配置则使用标题截取
+RAG_API_KEY=sk-xxx  # OpenAI API Key
 RAG_API_BASE=https://api.openai.com/v1
 RAG_MODEL=gpt-3.5-turbo
 RAG_TEMPERATURE=0.3
@@ -60,27 +65,20 @@ RAG_MAX_TOKENS=50
 RAG_TIMEOUT=30
 ```
 
-**注意**：不再使用 `config.json`，请迁移到统一 `.env` 文件。
-
 **配置项说明：**
 
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
-| `RAG_LLM_PROVIDER` | LLM提供商：`openclaw` 或 `openai` | `openclaw` |
-| `RAG_API_KEY` | API密钥（使用外部LLM时必填） | 空 |
+| `RAG_API_KEY` | API密钥（配置了则启用 LLM 命名） | 空（标题截取） |
 | `RAG_API_BASE` | API基础URL | `https://api.openai.com/v1` |
 | `RAG_MODEL` | 模型名称 | `gpt-3.5-turbo` |
 | `RAG_TEMPERATURE` | 生成温度 | `0.3` |
 | `RAG_MAX_TOKENS` | 最大token数 | `50` |
 | `RAG_TIMEOUT` | 请求超时（秒） | `30` |
 
-**使用方式：**
-- **方式1（默认）**：`RAG_LLM_PROVIDER=openclaw` - 使用OpenClaw内置agent，无需额外配置
-- **方式2**：`RAG_LLM_PROVIDER=openai` + 填写 `RAG_API_KEY` - 使用OpenAI API或其他兼容API
-
 **注意事项：**
-- 不配置LLM时，智能命名功能自动回退到原标题截取
-- 建议优先使用 `openclaw` 方式，无需额外API成本
+- 不配置 `RAG_API_KEY` 时，自动使用标题截取作为项目名
+- 支持任何 OpenAI 兼容的 API（如 Azure、本地模型等）
 
 ## 混合检索
 
@@ -113,15 +111,25 @@ RAG_TIMEOUT=30
 ## Notebook结构
 
 ```
-knowledge-base/notebooks/{name}/
-├── documents/          # 原始文档
-├── chunks.jsonl        # 文本切片
+docs-db/notebooks/{name}/
+├── documents/
+│   ├── raw/                # 原始文档（PDF、Word等）
+│   │   └── {doc_id}_{filename}
+│   └── text/               # Markdown格式的文本版本
+│       └── {doc_id}_{filename}.md
+├── chunks.jsonl            # 文本切片
 └── index/
     ├── embeddings.npy      # 向量索引
     ├── tfidf_vectorizer.pkl
     ├── tfidf_matrix.npz
     └── metadata.jsonl
 ```
+
+**说明：**
+- `raw/` 目录存放原始上传的文档，保留原格式
+- `text/` 目录存放转换后的Markdown格式，保留文档结构（标题、列表、表格等）
+- 从PDF/Word提取时会自动转换为Markdown，保留页码、标题层级等信息
+- 存储目录 `docs-db` 与技能名称 `knowledge-base` 分离，便于管理
 
 ## 自动依赖管理
 

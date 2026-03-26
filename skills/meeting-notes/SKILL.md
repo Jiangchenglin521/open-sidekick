@@ -1,10 +1,8 @@
 ---
-version: "2.0.0"
 name: meeting-notes
-description: "Meeting notes and minutes generator. Use when you need meeting notes."
-author: BytesAgain
-homepage: https://bytesagain.com
-source: https://github.com/bytesagain/ai-skills
+description: |
+  会议纪要和记录生成器，支持多种会议类型模板和行动项提取。
+  Use when: (1) 根据会议内容生成纪要, (2) 提取行动项和负责人, (3) 生成会议议程, (4) 撰写会后跟进邮件, (5) 各类会议模板(站会/复盘/脑暴等)。
 ---
 # meeting-notes
 

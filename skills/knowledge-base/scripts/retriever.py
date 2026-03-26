@@ -44,7 +44,7 @@ class HybridRetriever:
     
     def __init__(self, notebook: str = None, kb_base_path: str = None):
         if kb_base_path is None:
-            kb_base_path = os.path.expanduser("~/.openclaw/workspace/knowledge-base")
+            kb_base_path = os.path.expanduser("~/.openclaw/workspace/docs-db")
         self.kb_base_path = kb_base_path
         self.manager = NotebookManager(kb_base_path)
         

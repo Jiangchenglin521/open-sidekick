@@ -1,6 +1,8 @@
 ---
 name: chinese-asr
-description: 腾讯云语音识别 - 中文语音转文字。支持多种格式：ogg-opus、mp3、wav，实时转录，响应快速。需要配置 tencent_asr 密钥。
+description: |
+  腾讯云中文语音识别，支持ogg-opus、mp3、wav等多种音频格式转文字。
+  Use when: (1) 用户需要语音转文字, (2) 处理中文音频文件, (3) 会议录音转录, (4) 语音消息转换为文本。
 ---
 
 # Chinese ASR 🎤

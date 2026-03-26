@@ -27,7 +27,7 @@ class NotebookManager:
     
     def __init__(self, kb_base_path: str = None):
         if kb_base_path is None:
-            kb_base_path = os.path.expanduser("~/.openclaw/workspace/knowledge-base")
+            kb_base_path = os.path.expanduser("~/.openclaw/workspace/docs-db")
         self.kb_base_path = kb_base_path
         self.notebooks_path = os.path.join(kb_base_path, "notebooks")
         os.makedirs(self.notebooks_path, exist_ok=True)
@@ -48,7 +48,9 @@ class NotebookManager:
                 i += 1
         
         # 创建目录结构
-        os.makedirs(os.path.join(notebook_path, "documents"), exist_ok=True)
+        os.makedirs(os.path.join(notebook_path, "documents", "raw"), exist_ok=True)
+        os.makedirs(os.path.join(notebook_path, "documents", "text"), exist_ok=True)
+        os.makedirs(os.path.join(notebook_path, "index"), exist_ok=True)
         
         return notebook_path
     
@@ -70,6 +72,14 @@ class NotebookManager:
     def get_documents_path(self, name: str) -> str:
         """获取notebook的文档目录"""
         return os.path.join(self.notebooks_path, name, "documents")
+    
+    def get_raw_documents_path(self, name: str) -> str:
+        """获取原始文档目录 (documents/raw/)"""
+        return os.path.join(self.notebooks_path, name, "documents", "raw")
+    
+    def get_text_documents_path(self, name: str) -> str:
+        """获取文本文档目录 (documents/text/)"""
+        return os.path.join(self.notebooks_path, name, "documents", "text")
     
     def get_chunks_path(self, name: str) -> str:
         """获取notebook的chunks文件路径"""
@@ -104,12 +114,18 @@ class NotebookManager:
         if not os.path.exists(path):
             return {}
         
-        docs_path = self.get_documents_path(name)
+        raw_path = self.get_raw_documents_path(name)
+        text_path = self.get_text_documents_path(name)
         chunks_path = self.get_chunks_path(name)
         index_path = self.get_index_path(name)
         
-        doc_count = len([f for f in os.listdir(docs_path) 
-                        if os.path.isfile(os.path.join(docs_path, f))]) if os.path.exists(docs_path) else 0
+        # 统计原始文档数量
+        raw_count = len([f for f in os.listdir(raw_path) 
+                        if os.path.isfile(os.path.join(raw_path, f))]) if os.path.exists(raw_path) else 0
+        
+        # 统计markdown文档数量
+        text_count = len([f for f in os.listdir(text_path) 
+                         if os.path.isfile(os.path.join(text_path, f))]) if os.path.exists(text_path) else 0
         
         chunk_count = 0
         if os.path.exists(chunks_path):
@@ -120,7 +136,8 @@ class NotebookManager:
         
         return {
             "name": name,
-            "documents": doc_count,
+            "raw_documents": raw_count,
+            "text_documents": text_count,
             "chunks": chunk_count,
             "indexed": has_index
         }
@@ -143,7 +160,7 @@ if __name__ == "__main__":
             for name in notebooks:
                 stats = manager.get_stats(name)
                 print(f"   📁 {name}")
-                print(f"      文档: {stats['documents']}, 切片: {stats['chunks']}, 索引: {'✓' if stats['indexed'] else '✗'}")
+                print(f"      原始文档: {stats['raw_documents']}, Markdown: {stats['text_documents']}, 切片: {stats['chunks']}, 索引: {'✓' if stats['indexed'] else '✗'}")
         else:
             print("📭 知识库为空")
         sys.exit(0)

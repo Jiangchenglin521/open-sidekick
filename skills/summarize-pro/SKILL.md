@@ -1,6 +1,8 @@
 ---
 name: summarize-pro
-description: When user asks to summarize text, articles, documents, meetings, emails, YouTube transcripts, books, PDFs, reports, conversations, or any long content. Also handles bullet points, key takeaways, action items, TL;DR, ELI5, executive summaries, chapter summaries, comparison summaries, translation summaries, thread summaries, and custom-length summaries. 20-feature AI summarizer with multiple formats, languages, and export options. All processing happens locally — NO external API calls, NO network requests, NO data sent to any server.
+description: |
+  智能摘要生成器，支持文本、文章、会议、邮件等20+种摘要格式。
+  Use when: (1) 总结长文本或文档, (2) 提取关键要点和行动项, (3) 会议纪要摘要, (4) 生成执行摘要或TL;DR, (5) 多语言摘要翻译。
 metadata: {"clawdbot":{"emoji":"📝","requires":{"tools":["read","write"]}}}
 ---
 

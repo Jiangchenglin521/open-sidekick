@@ -1,6 +1,8 @@
 ---
 name: imap-smtp-email
-description: Read and send email via IMAP/SMTP. Check for new/unread messages, fetch content, search mailboxes, mark as read/unread, and send emails with attachments. Works with any IMAP/SMTP server including Gmail, Outlook, 163.com, vip.163.com, 126.com, vip.126.com, 188.com, and vip.188.com.
+description: |
+  邮件收发管理，支持IMAP收邮件、SMTP发邮件，支持Gmail、Outlook、163等主流邮箱。
+  Use when: (1) 用户要求查看邮件, (2) 发送邮件或附件, (3) 搜索邮件内容, (4) 邮件提醒和通知, (5) 处理邮件中的待办事项。
 ---
 
 # IMAP/SMTP Email Tool

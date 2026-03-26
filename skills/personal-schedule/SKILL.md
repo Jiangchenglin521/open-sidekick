@@ -1,6 +1,8 @@
 ---
 name: personal-schedule
-description: Personal schedule management skill that handles todo extraction from multiple sources (user input, meeting minutes, emails), priority analysis, reminder scheduling, and chat-based CRUD operations. Use when user mentions schedule, todo, reminder, calendar, 日程, 待办, 提醒, 计划, or wants to create/modify/delete/query todos. Supports natural language input like "明天下午3点开会", "查看今天日程", "完成待办#1".
+description: |
+  个人日程管理，支持待办提取、优先级分析、提醒设置和聊天式管理。
+  Use when: (1) 用户提到日程/待办/提醒, (2) 创建或修改待办事项, (3) 查看今天/本周安排, (4) 从会议纪要/邮件提取待办, (5) 设置任务提醒。
 ---
 
 # Personal Schedule

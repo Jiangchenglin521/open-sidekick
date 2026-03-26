@@ -1,14 +1,8 @@
 ---
-name: meeting-assistant
-description: >
-  Complete meeting workflow assistant that handles recording, transcription, minutes generation, and mindmap creation.
-  Use when user says "我要开会了", "开始会议整理", "meeting assistant", or any meeting documentation task.
-  Supports two modes: (1) real-time recording via ffmpeg when no file provided,
-  (2) waiting for file upload when user indicates.
-  Triggers on "会议结束" to stop recording and process.
-  Generates meeting minutes, action items, and mindmap by default.
-  Respects user custom requirements if specified before or during the workflow
-  (e.g., "不需要思维导图", "只要待办事项").
+name: meeting-workflow
+description: |
+  会议全流程助手，支持录音、转录、生成会议纪要和思维导图。
+  Use when: (1) 用户说"我要开会了", (2) 会议录音转文字, (3) 生成会议纪要, (4) 提取会议待办事项, (5) 会议内容可视化。
 ---
 
 # Meeting Assistant

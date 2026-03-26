@@ -36,7 +36,8 @@ def load_rag_config():
     # 默认配置
     default_config = {
         "llm": {
-            "provider": "openclaw",
+            # 不再使用 provider 字段，直接检查 api_key 是否存在
+            # 配置了 api_key 则使用 LLM，否则回退到标题截取
             "api_key": "",
             "api_base": "https://api.openai.com/v1",
             "model": "gpt-3.5-turbo",
@@ -68,8 +69,6 @@ def load_rag_config():
         env = parse_env_file(WORKSPACE_ENV)
         
         # 覆盖 LLM 配置
-        if env.get('RAG_LLM_PROVIDER'):
-            default_config["llm"]["provider"] = env['RAG_LLM_PROVIDER']
         if env.get('RAG_API_KEY'):
             default_config["llm"]["api_key"] = env['RAG_API_KEY']
         if env.get('RAG_API_BASE'):

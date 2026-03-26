@@ -1,6 +1,8 @@
 ---
 name: dueros-evokehome
-description: DuerOS 智能家居控制技能 - 饱和式攻击执行架构，支持21种设备能力，执行后状态验证，执行缓存复用
+description: |
+  DuerOS智能家居控制，支持小度设备的开关、亮度、色温等21种能力控制。
+  Use when: (1) 用户要求控制智能家居设备, (2) 操作小度音箱/台灯/摄像头等, (3) 语音控制家电, (4) 查询设备状态。
 ---
 
 # DuerOS EvokeHome

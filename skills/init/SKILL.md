@@ -1,6 +1,8 @@
 ---
 name: init
-description: OpenClaw 工作区初始化工具。检查必需技能是否安装，缺失的自动从 clawhub 安装；检查已安装技能的配置参数（API Key、OAuth 等），生成配置报告提醒用户补全。
+description: |
+  OpenClaw工作区初始化工具，检查并安装必需技能，验证配置参数完整性。
+  Use when: (1) 首次设置OpenClaw工作区, (2) 检查技能安装状态, (3) 验证API Key等配置, (4) 新环境部署时初始化。
 ---
 
 # Init 技能

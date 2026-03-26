@@ -94,3 +94,5 @@ apps/ios/LocalSigning.xcconfig
 skills/chinese-asr/config.json
 meetings/
 ppt-output/
+docs-db/
+.venv/

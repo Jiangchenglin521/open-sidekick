@@ -1,6 +1,8 @@
 ---
-name: FFmpeg
-description: Process video and audio with correct codec selection, filtering, and encoding settings.
+name: ffmpeg
+description: |
+  音视频处理工具，支持转码、剪辑、合并、提取、滤镜、格式转换等操作。
+  Use when: (1) 视频格式转换或压缩, (2) 音频提取或剪辑, (3) 音视频合并/分割, (4) 屏幕录制, (5) 视频截图或GIF生成。
 metadata: {"clawdbot":{"emoji":"🎬","requires":{"bins":["ffmpeg"]},"os":["linux","darwin","win32"]}}
 ---
 
@@ -55,6 +57,59 @@ metadata: {"clawdbot":{"emoji":"🎬","requires":{"bins":["ffmpeg"]},"os":["linu
 - Audio codec: `-c:a aac -b:a 192k`—AAC at 192kbps
 - Normalize: `-filter:a loudnorm`—EBU R128 loudness normalization
 - Extract audio: `-vn -c:a copy output.m4a`—no video, copy audio
+
+### Audio Format Conversion
+
+Convert between common audio formats:
+
+```bash
+# OGG to MP3
+ffmpeg -i input.ogg -c:a libmp3lame -q:a 2 output.mp3
+
+# OGG to WAV
+ffmpeg -i input.ogg output.wav
+
+# MP3 to WAV
+ffmpeg -i input.mp3 output.wav
+
+# WAV to MP3
+ffmpeg -i input.wav -c:a libmp3lame -b:a 192k output.mp3
+
+# Any format to AAC
+ffmpeg -i input.ogg -c:a aac -b:a 192k output.m4a
+```
+
+### Extract Audio from Video
+
+```bash
+# Copy audio stream without re-encoding (fast, no quality loss)
+ffmpeg -i video.mp4 -vn -acodec copy output.aac
+
+# Extract to MP3
+ffmpeg -i video.mp4 -vn -c:a libmp3lame -q:a 2 output.mp3
+
+# Extract to WAV (uncompressed)
+ffmpeg -i video.mp4 -vn output.wav
+
+# Extract specific audio stream (e.g., second audio track)
+ffmpeg -i video.mp4 -map 0:a:1 -vn -c:a copy output.aac
+```
+
+### Audio Filter Examples
+
+```bash
+# Adjust volume (0.5 = half volume, 2.0 = double)
+ffmpeg -i input.mp3 -filter:a "volume=1.5" output.mp3
+
+# Fade in (first 3 seconds) and fade out (last 3 seconds)
+ffmpeg -i input.mp3 -filter:a "afade=t=in:ss=0:d=3,afade=t=out:st=27:d=3" output.mp3
+
+# Convert to mono
+ffmpeg -i input.mp3 -ac 1 output.mp3
+
+# Change sample rate
+ffmpeg -i input.mp3 -ar 44100 output.mp3
+```
 
 ## Concatenation
 

@@ -1,10 +1,10 @@
 ---
-name: Excel / XLSX
+name: excel-xlsx
 slug: excel-xlsx
-version: 1.0.2
-homepage: https://clawic.com/skills/excel-xlsx
-description: "Create, inspect, and edit Microsoft Excel workbooks and XLSX files with reliable formulas, dates, types, formatting, recalculation, and template preservation. Use when (1) the task is about Excel, `.xlsx`, `.xlsm`, `.xls`, `.csv`, or `.tsv`; (2) formulas, formatting, workbook structure, or compatibility matter; (3) the file must stay reliable after edits."
-changelog: Tightened formula anchoring, recalculation, and model traceability after a stricter external spreadsheet audit.
+description: |
+  Microsoft Excel表格处理，支持创建、编辑、公式计算、格式化、数据透视等功能。
+  Use when: (1) 处理.xlsx/.xls/.csv等表格文件, (2) 需要公式、格式化、图表, (3) 数据分析和报表生成, (4) 表格数据批量处理。
+---
 metadata: {"clawdbot":{"emoji":"📗","requires":{"bins":[]},"os":["linux","darwin","win32"]}}
 ---
 
