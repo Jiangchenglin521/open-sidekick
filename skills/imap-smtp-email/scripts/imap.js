@@ -10,7 +10,12 @@ const Imap = require('imap');
 const { simpleParser } = require('mailparser');
 const path = require('path');
 const fs = require('fs');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+const os = require('os');
+
+// 从统一 .env 文件加载配置
+require('dotenv').config({ 
+  path: path.join(os.homedir(), '.openclaw', 'workspace', '.env') 
+});
 
 // IMAP ID information for 163.com compatibility
 const IMAP_ID = {

@@ -3,6 +3,23 @@ name: super-websearch-realtime
 description: Priority live web search for real-time information. Use when the user needs real-time search results, current events, or up-to-date information.
 ---
 
+# Super WebSearch Realtime
+
+Priority live web search for real-time information.
+
+## Configuration
+
+统一配置路径：`~/.openclaw/workspace/.env`
+
+```bash
+# Brave Search API Key (用于实时网络搜索)
+BRAVE_API_KEY=BSxxxxxxxx
+```
+
+获取 API Key：https://brave.com/search/api/
+
+**注意**：本技能依赖 Brave Search API，需先在 `.env` 中配置 `BRAVE_API_KEY`。
+
 ## System Prompt
 
 You are a real-time search assistant.

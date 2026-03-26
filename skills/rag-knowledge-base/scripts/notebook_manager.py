@@ -4,10 +4,23 @@ Notebook管理器 - 创建、读取、更新Notebook
 """
 
 import os
+import sys
 import json
 import shutil
 from pathlib import Path
 from typing import List, Optional
+
+# 检查是否使用虚拟环境的Python
+script_dir = Path(__file__).parent
+skill_dir = script_dir.parent
+venv_python = skill_dir / '.venv' / 'bin' / 'python'
+
+if sys.executable != str(venv_python) and venv_python.exists():
+    print("⚠️  警告: 未使用虚拟环境的 Python")
+    print(f"   当前: {sys.executable}")
+    print(f"   应使用: {venv_python}")
+    print("   请使用: ./.venv/bin/python scripts/notebook_manager.py")
+    print()
 
 class NotebookManager:
     """Notebook管理"""

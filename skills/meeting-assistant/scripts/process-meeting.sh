@@ -83,13 +83,67 @@ fi
 
 TRANSCRIPT_FILE="$MEETING_DIR/transcript.txt"
 
-# Run transcription
-if python3 "$CHINESE_ASR_DIR/asr.py" "$AUDIO_PATH" > "$TRANSCRIPT_FILE" 2>/dev/null; then
-    echo "✅ Transcription complete"
-    TRANSCRIPT=$(cat "$TRANSCRIPT_FILE")
-    echo "   Characters: $(echo "$TRANSCRIPT" | wc -m)"
+# 检查音频时长并分割（如果需要）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SPLIT_RESULT=$("$SCRIPT_DIR/split-audio.sh" "$AUDIO_PATH" "$MEETING_DIR")
+
+SPLIT=$(echo "$SPLIT_RESULT" | grep -o '"split": [^,]*' | cut -d' ' -f2)
+
+if [[ "$SPLIT" == "true" ]]; then
+    echo "   ⏱️ 长音频检测到，自动分割处理..."
+    echo "   $SPLIT_RESULT"
+    
+    # 获取分割后的文件列表
+    SEGMENT_COUNT=$(echo "$SPLIT_RESULT" | grep -o '"segment_count": [0-9]*' | cut -d' ' -f2)
+    SPLIT_DIR=$(echo "$SPLIT_RESULT" | grep -o '"split_dir": "[^"]*"' | cut -d'"' -f4)
+    
+    echo "   分割为 $SEGMENT_COUNT 段，逐段转录..."
+    
+    # 临时转录文件
+    TEMP_TRANSCRIPT_DIR="$MEETING_DIR/.transcript_parts"
+    mkdir -p "$TEMP_TRANSCRIPT_DIR"
+    
+    # 循环转录每个分段
+    for i in $(seq 0 $((SEGMENT_COUNT - 1))); do
+        local segment_file="$SPLIT_DIR"/*_part$(printf "%03d" $i).*
+        segment_file=$(ls $segment_file 2>/dev/null | head -1)
+        
+        if [[ -f "$segment_file" ]]; then
+            echo "   🎵 转录第 $((i + 1))/$SEGMENT_COUNT 段..."
+            if python3 "$CHINESE_ASR_DIR/asr.py" "$segment_file" > "$TEMP_TRANSCRIPT_DIR/part_$i.txt" 2>/dev/null; then
+                echo "      ✅ 第 $((i + 1)) 段完成"
+            else
+                echo "      ❌ 第 $((i + 1)) 段转录失败"
+            fi
+        fi
+    done
+    
+    # 合并所有转录结果
+    echo "   📝 合并转录结果..."
+    cat "$TEMP_TRANSCRIPT_DIR"/part_*.txt > "$TRANSCRIPT_FILE" 2>/dev/null || true
+    
+    # 清理临时文件
+    rm -rf "$TEMP_TRANSCRIPT_DIR"
+    
 else
-    echo "❌ Transcription failed"
+    echo "   ⏱️ 音频时长正常，直接转录..."
+    # 直接转录
+    if python3 "$CHINESE_ASR_DIR/asr.py" "$AUDIO_PATH" > "$TRANSCRIPT_FILE" 2>/dev/null; then
+        echo "   ✅ 转录完成"
+    else
+        echo "   ❌ 转录失败"
+        exit 1
+    fi
+fi
+
+# 检查转录结果
+if [[ -f "$TRANSCRIPT_FILE" ]] && [[ -s "$TRANSCRIPT_FILE" ]]; then
+    TRANSCRIPT=$(cat "$TRANSCRIPT_FILE")
+    echo "✅ Transcription complete"
+    echo "   Characters: $(echo "$TRANSCRIPT" | wc -m)"
+    [[ "$SPLIT" == "true" ]] && echo "   Segments: $SEGMENT_COUNT"
+else
+    echo "❌ Transcription failed or empty"
     exit 1
 fi
 

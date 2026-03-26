@@ -20,8 +20,8 @@ pptx-pro/
 ├── editing.md            # 模板编辑工作流
 ├── pptxgenjs.md          # PptxGenJS 完整 API 教程
 ├── LICENSE.txt           # MIT-0 许可证
-├── generated-scripts/    # 生成的 PPT 脚本存放目录
 └── scripts/              # 核心工具脚本
+    ├── output_manager.py # 输出路径管理
     ├── thumbnail.py
     ├── add_slide.py
     ├── clean.py
@@ -31,12 +31,27 @@ pptx-pro/
         └── ...
 ```
 
-## 文件输出路径
+## 文件输出路径（统一目录）
 
-| 类型 | 默认路径 |
-|------|----------|
-| 生成的 Node.js 脚本 | `~/.openclaw/workspace/skills/pptx-pro/generated-scripts/` |
+所有生成的文件统一存放在以下目录：
+
+| 类型 | 路径 |
+|------|------|
 | 生成的 PPTX 文件 | `~/.openclaw/workspace/ppt-output/` |
+| 生成的缩略图 | `~/.openclaw/workspace/ppt-output/` |
+| 生成的 Node.js 脚本 | `~/.openclaw/workspace/ppt-output/generated-scripts/` |
+
+**目录会自动创建**，无需手动创建。
+
+### 查看/清理输出目录
+
+```bash
+# 查看输出目录内容
+python ~/.openclaw/workspace/skills/pptx-pro/scripts/output_manager.py
+
+# 清理输出目录
+python ~/.openclaw/workspace/skills/pptx-pro/scripts/output_manager.py clean
+```
 
 ## 何时使用
 
@@ -58,7 +73,17 @@ npm install pptxgenjs
 参考 [pptxgenjs.md](pptxgenjs.md) 获取完整的 API 文档和代码示例。
 
 ### 3. 输出文件位置
-生成的 PPT 默认保存在 `~/.openclaw/workspace/ppt-output/` 目录。
+生成的 PPT 和缩略图统一保存在 `~/.openclaw/workspace/ppt-output/` 目录：
+
+```bash
+# 查看生成的文件
+ls ~/.openclaw/workspace/ppt-output/
+
+# 输出示例:
+# output.pptx          - 生成的演示文稿
+# thumbnails.jpg       - 幻灯片缩略图
+# generated-scripts/   - 生成的 Node.js 脚本
+```
 
 ---
 
@@ -126,13 +151,15 @@ npm install pptxgenjs
 | 任务 | 命令/方法 |
 |------|-----------|
 | 读取/分析内容 | `python -m markitdown presentation.pptx` |
-| 生成缩略图 | `python scripts/thumbnail.py template.pptx` |
+| 生成缩略图 | `python scripts/thumbnail.py template.pptx` → 输出到 ppt-output/ |
 | 解压 PPTX | `python scripts/office/unpack.py input.pptx unpacked/` |
-| 打包 PPTX | `python scripts/office/pack.py unpacked/ output.pptx --original input.pptx` |
+| 打包 PPTX | `python scripts/office/pack.py unpacked/ [output.pptx]` → 输出到 ppt-output/ |
 | 清理文件 | `python scripts/clean.py unpacked/` |
 | 添加幻灯片 | `python scripts/add_slide.py unpacked/ slideLayout2.xml` |
 | 编辑模板 | Read [editing.md](editing.md) |
 | 从零创建 | Read [pptxgenjs.md](pptxgenjs.md) |
+| 查看输出目录 | `python scripts/output_manager.py` |
+| 清理输出目录 | `python scripts/output_manager.py clean` |
 
 ---
 

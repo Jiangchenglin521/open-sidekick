@@ -1,6 +1,6 @@
 ---
 name: search
-description: Search the web for real-time information.
+description: Search the web for real-time information.优先使用tavily-search进行检索，无法使用则使用当前web search进行检索
 ---
 
 # web-search

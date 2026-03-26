@@ -4,15 +4,37 @@
 """
 
 import os
+import sys
 import json
-import numpy as np
 from pathlib import Path
 from typing import List, Tuple, Optional
 
+# 检查是否使用虚拟环境的Python
+script_dir = Path(__file__).parent
+skill_dir = script_dir.parent
+venv_python = skill_dir / '.venv' / 'bin' / 'python'
+
+if sys.executable != str(venv_python) and venv_python.exists():
+    print("⚠️  警告: 未使用虚拟环境的 Python")
+    print(f"   当前: {sys.executable}")
+    print(f"   应使用: {venv_python}")
+    print("   请使用: ./.venv/bin/python scripts/classifier.py")
+    print()
+
 # 导入嵌入模块
-import sys
 sys.path.insert(0, os.path.dirname(__file__))
-from embedder import encode, cosine_similarity
+
+# 检查依赖
+try:
+    import numpy as np
+    from embedder import encode, cosine_similarity
+except ImportError as e:
+    print(f"❌ 依赖缺失: {e}")
+    print("💡 请使用虚拟环境的 Python:")
+    print(f"   {venv_python} {__file__}")
+    sys.exit(1)
+
+from config_loader import load_rag_config
 
 class AutoClassifier:
     """自动文档分类器"""
@@ -22,6 +44,11 @@ class AutoClassifier:
             kb_base_path = os.path.expanduser("~/.openclaw/workspace/knowledge-base")
         self.kb_base_path = kb_base_path
         self.notebooks_path = os.path.join(kb_base_path, "notebooks")
+        self.config = load_rag_config()
+    
+    def _load_config(self) -> dict:
+        """加载配置文件 - 现在由 config_loader 处理"""
+        return load_rag_config()
         
     def list_notebooks(self) -> List[str]:
         """列出所有notebook"""
@@ -94,7 +121,7 @@ class AutoClassifier:
         
         if not notebooks:
             # 没有现有notebook，建议新建
-            suggested_name = self._generate_notebook_name(doc_profile["title"])
+            suggested_name = self._generate_notebook_name(doc_profile)
             return suggested_name, "create_new", 0.0
         
         # 计算与每个notebook的相似度
@@ -109,7 +136,7 @@ class AutoClassifier:
                 similarities.append((nb_name, sim))
         
         if not similarities:
-            suggested_name = self._generate_notebook_name(doc_profile["title"])
+            suggested_name = self._generate_notebook_name(doc_profile)
             return suggested_name, "create_new", 0.0
         
         # 找最佳匹配
@@ -118,18 +145,151 @@ class AutoClassifier:
         if best_score >= threshold:
             return best_match, "existing", best_score
         else:
-            suggested_name = self._generate_notebook_name(doc_profile["title"])
+            suggested_name = self._generate_notebook_name(doc_profile)
             return suggested_name, "create_new", best_score
     
-    def _generate_notebook_name(self, title: str) -> str:
-        """从标题生成notebook名称"""
-        # 取标题前20个字符，过滤特殊字符
-        name = title[:20].strip()
-        # 移除不适合做目录名的字符
+    def _generate_notebook_name(self, doc_profile: dict) -> str:
+        """
+        智能生成notebook名称
+        基于文档画像（标题+摘要+关键词），通过LLM理解内容生成合适的项目名
+        """
         import re
-        name = re.sub(r'[<\u003e:"/\\|?*]', '', name)
-        return name or "新项目"
+        
+        title = doc_profile.get("title", "")
+        summary = doc_profile.get("summary", "")[:300]  # 限制长度
+        keywords = doc_profile.get("keywords", [])
+        
+        # 构建prompt
+        prompt = f"""基于以下文档信息，生成一个简洁的项目/分类名称（3-10字）：
+
+标题：{title}
+摘要：{summary}
+关键词：{', '.join(keywords[:8])}
+
+要求：
+1. 准确概括文档主题
+2. 简洁易懂，适合作为文件夹名称
+3. 如果是技术文档，优先使用技术领域名称
+4. 不要包含版本号、日期、特殊字符
+5. 只返回项目名称，不要解释，不要加引号
+
+项目名称："""
+        
+        try:
+            # 调用LLM生成名称
+            name = self._call_llm(prompt).strip()
+            
+            # 清理特殊字符，确保适合作为目录名
+            name = re.sub(r'[<>:"/\\|?*\n\r]', '', name)
+            name = name.strip()
+            
+            # 长度限制
+            if len(name) > 15:
+                name = name[:15]
+            if len(name) < 2:
+                # 回退到原标题截取
+                name = title[:10].strip() if title else "新项目"
+                name = re.sub(r'[<>:"/\\|?*]', '', name)
+            
+            return name or "新项目"
+            
+        except Exception as e:
+            # LLM失败时回退到原标题截取
+            print(f"⚠️  LLM命名失败，使用标题截取: {e}")
+            name = title[:15].strip() if title else "新项目"
+            name = re.sub(r'[<>:"/\\|?*]', '', name)
+            return name or "新项目"
     
+    def _call_llm(self, prompt: str) -> str:
+        """调用LLM生成内容"""
+        import subprocess
+        import json
+        
+        llm_config = self.config.get("llm", {})
+        provider = llm_config.get("provider", "openclaw")
+        
+        # 如果配置了外部API且不是openclaw，使用API方式
+        if provider != "openclaw" and llm_config.get("api_key"):
+            return self._call_llm_via_api(prompt, llm_config)
+        
+        # 尝试调用OpenClaw的agent功能
+        try:
+            # 使用openclaw命令行工具
+            cmd = [
+                "openclaw", "agent", "run",
+                "--message", prompt,
+                "--thinking", "low",
+                "--format", "json"
+            ]
+            
+            timeout = llm_config.get("timeout", 30)
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+            
+            if result.returncode == 0:
+                # 尝试解析JSON
+                try:
+                    data = json.loads(result.stdout)
+                    return data.get("content", result.stdout.strip())
+                except:
+                    return result.stdout.strip()
+            else:
+                # 失败时尝试API方式
+                if llm_config.get("api_key"):
+                    return self._call_llm_via_api(prompt, llm_config)
+                raise RuntimeError(f"openclaw agent failed: {result.stderr}")
+                
+        except Exception:
+            # 如果openclaw不可用，尝试API方式
+            if llm_config.get("api_key"):
+                return self._call_llm_via_api(prompt, llm_config)
+            raise RuntimeError("No LLM available. Please configure LLM in config.json or ensure openclaw agent is available.")
+    
+    def _call_llm_via_api(self, prompt: str, llm_config: dict = None) -> str:
+        """通过API调用LLM"""
+        import urllib.request
+        import json
+        
+        if llm_config is None:
+            llm_config = self.config.get("llm", {})
+        
+        api_key = llm_config.get("api_key", "")
+        api_base = llm_config.get("api_base", "https://api.openai.com/v1")
+        model = llm_config.get("model", "gpt-3.5-turbo")
+        temperature = llm_config.get("temperature", 0.3)
+        max_tokens = llm_config.get("max_tokens", 50)
+        timeout = llm_config.get("timeout", 30)
+        
+        if not api_key:
+            raise RuntimeError("API key not configured. Please set api_key in config.json.")
+        
+        url = f"{api_base}/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        }
+        data = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": temperature,
+            "max_tokens": max_tokens
+        }
+        
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(data).encode(),
+            headers=headers,
+            method="POST"
+        )
+        
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            result = json.loads(response.read().decode())
+            return result["choices"][0]["message"]["content"]
+
     def get_all_similarities(self, doc_profile: dict) -> List[Tuple[str, float]]:
         """获取与所有notebook的相似度（用于展示）"""
         notebooks = self.list_notebooks()

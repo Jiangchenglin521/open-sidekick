@@ -8,8 +8,13 @@
 
 const nodemailer = require('nodemailer');
 const path = require('path');
+const os = require('os');
 const { SocksProxyAgent } = require('socks-proxy-agent');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+
+// 从统一 .env 文件加载配置
+require('dotenv').config({ 
+  path: path.join(os.homedir(), '.openclaw', 'workspace', '.env') 
+});
 
 // Proxy configuration - using system proxy
 const PROXY_URL = process.env.PROXY_URL || 'socks5://127.0.0.1:1086';

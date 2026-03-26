@@ -3,10 +3,12 @@
 Validates with auto-repair, condenses XML formatting, and creates the Office file.
 
 Usage:
-    python pack.py <input_directory> <output_file> [--original <file>] [--validate true|false]
+    python pack.py <input_directory> [output_file] [--original <file>] [--validate true|false]
 
 Examples:
-    python pack.py unpacked/ output.docx --original input.docx
+    python pack.py unpacked/                    # 输出到 ppt-output/output.pptx
+    python pack.py unpacked/ mydeck.pptx        # 输出到 ppt-output/mydeck.pptx
+    python pack.py unpacked/ output.pptx --original input.pptx
     python pack.py unpacked/ output.pptx --validate false
 """
 
@@ -19,17 +21,27 @@ from pathlib import Path
 
 import defusedxml.minidom
 
+# 添加父目录到路径
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from output_manager import resolve_output_path, get_output_dir
+
 from validators import DOCXSchemaValidator, PPTXSchemaValidator, RedliningValidator
 
 def pack(
     input_directory: str,
-    output_file: str,
+    output_file: str = None,
     original_file: str | None = None,
     validate: bool = True,
     infer_author_func=None,
 ) -> tuple[None, str]:
     input_dir = Path(input_directory)
-    output_path = Path(output_file)
+    
+    # 如果没有指定输出文件，使用默认名称
+    if output_file is None:
+        output_file = "output.pptx"
+    
+    # 解析输出路径（统一放到ppt-output目录）
+    output_path = resolve_output_path(output_file)
     suffix = output_path.suffix.lower()
 
     if not input_dir.is_dir():
@@ -63,7 +75,7 @@ def pack(
                 if f.is_file():
                     zf.write(f, f.relative_to(temp_content_dir))
 
-    return None, f"Successfully packed {input_dir} to {output_file}"
+    return None, f"Successfully packed {input_dir} to {output_path}"
 
 
 def _run_validation(
@@ -133,7 +145,12 @@ if __name__ == "__main__":
         description="Pack a directory into a DOCX, PPTX, or XLSX file"
     )
     parser.add_argument("input_directory", help="Unpacked Office document directory")
-    parser.add_argument("output_file", help="Output Office file (.docx/.pptx/.xlsx)")
+    parser.add_argument(
+        "output_file",
+        nargs="?",
+        default=None,
+        help="Output Office file (.docx/.pptx/.xlsx), defaults to ppt-output/output.pptx",
+    )
     parser.add_argument(
         "--original",
         help="Original file for validation comparison",
@@ -154,6 +171,10 @@ if __name__ == "__main__":
         validate=args.validate,
     )
     print(message)
+    
+    # 显示输出目录信息
+    if "Successfully" in message:
+        print(f"📁 输出目录: {get_output_dir()}")
 
     if "Error" in message:
         sys.exit(1)

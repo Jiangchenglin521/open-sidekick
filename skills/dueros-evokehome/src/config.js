@@ -1,14 +1,17 @@
 /**
  * 配置管理器 - 管理 Token 和全局配置
+ * 从统一 .env 文件读取配置
  */
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import os from 'os';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CONFIG_DIR = path.join(__dirname, '..', 'config');
-const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
+
+// 统一配置文件路径
+const WORKSPACE_ENV = path.join(os.homedir(), '.openclaw', 'workspace', '.env');
 
 const DEFAULT_CONFIG = {
   accessToken: '',
@@ -19,38 +22,59 @@ const DEFAULT_CONFIG = {
   defaultDevice: '台灯'
 };
 
-export class ConfigManager {
-  static getConfigPath() {
-    return CONFIG_FILE;
+/**
+ * 从 .env 文件解析配置
+ */
+function parseEnvFile(filePath) {
+  const config = {};
+  if (!fs.existsSync(filePath)) {
+    return config;
   }
-
-  static ensureConfigDir() {
-    if (!fs.existsSync(CONFIG_DIR)) {
-      fs.mkdirSync(CONFIG_DIR, { recursive: true });
+  
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const lines = content.split('\n');
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // 跳过注释和空行
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    
+    const eqIndex = trimmed.indexOf('=');
+    if (eqIndex > 0) {
+      const key = trimmed.substring(0, eqIndex).trim();
+      const value = trimmed.substring(eqIndex + 1).trim();
+      config[key] = value;
     }
+  }
+  
+  return config;
+}
+
+export class ConfigManager {
+  static getEnvPath() {
+    return WORKSPACE_ENV;
   }
 
   static load() {
-    this.ensureConfigDir();
-    if (!fs.existsSync(CONFIG_FILE)) {
-      this.save(DEFAULT_CONFIG);
-      return { ...DEFAULT_CONFIG };
-    }
-    return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
+    const envConfig = parseEnvFile(WORKSPACE_ENV);
+    
+    return {
+      accessToken: envConfig.DUEROS_ACCESS_TOKEN || DEFAULT_CONFIG.accessToken,
+      refreshToken: envConfig.DUEROS_REFRESH_TOKEN || DEFAULT_CONFIG.refreshToken,
+      expiresAt: envConfig.DUEROS_EXPIRES_AT || DEFAULT_CONFIG.expiresAt,
+      tokenExpiryCheck: envConfig.DUEROS_TOKEN_EXPIRY_CHECK === 'true' || DEFAULT_CONFIG.tokenExpiryCheck,
+      autoRefresh: envConfig.DUEROS_AUTO_REFRESH === 'true' || DEFAULT_CONFIG.autoRefresh,
+      defaultDevice: envConfig.DUEROS_DEFAULT_DEVICE || DEFAULT_CONFIG.defaultDevice
+    };
   }
 
   static save(config) {
-    this.ensureConfigDir();
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');
+    // 不再写入 config.json，而是提示用户手动编辑 .env
+    throw new Error('请直接编辑 ~/.openclaw/workspace/.env 文件来修改配置');
   }
 
   static setToken(accessToken, refreshToken = null, expiresIn = 2592000) {
-    const config = this.load();
-    config.accessToken = accessToken;
-    config.refreshToken = refreshToken;
-    config.expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
-    this.save(config);
-    return config;
+    throw new Error('请直接编辑 ~/.openclaw/workspace/.env 文件，设置 DUEROS_ACCESS_TOKEN=' + accessToken);
   }
 
   static getTokenStatus() {
@@ -83,15 +107,11 @@ export class ConfigManager {
   }
 
   static setExpiryCheck(enabled) {
-    const config = this.load();
-    config.tokenExpiryCheck = enabled;
-    this.save(config);
+    throw new Error('请直接编辑 ~/.openclaw/workspace/.env 文件，设置 DUEROS_TOKEN_EXPIRY_CHECK=' + enabled);
   }
 
   static setAutoRefresh(enabled) {
-    const config = this.load();
-    config.autoRefresh = enabled;
-    this.save(config);
+    throw new Error('请直接编辑 ~/.openclaw/workspace/.env 文件，设置 DUEROS_AUTO_REFRESH=' + enabled);
   }
 }
 

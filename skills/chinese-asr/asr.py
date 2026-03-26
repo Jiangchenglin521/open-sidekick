@@ -19,12 +19,44 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 
-# 配置路径
+# 配置路径 - 优先从统一 .env 读取
+WORKSPACE_ENV = Path.home() / ".openclaw" / "workspace" / ".env"
 CONFIG_PATH = Path(__file__).parent / "config.json"
 
 
+def parse_env_file(file_path):
+    """解析 .env 文件"""
+    config = {}
+    if not file_path.exists():
+        return config
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            if '=' in line:
+                key, value = line.split('=', 1)
+                config[key.strip()] = value.strip()
+    return config
+
+
 def load_config():
-    """加载配置"""
+    """加载配置 - 优先从统一 .env 读取，其次从 config.json"""
+    # 首先尝试从统一 .env 读取
+    if WORKSPACE_ENV.exists():
+        env_config = parse_env_file(WORKSPACE_ENV)
+        secret_id = env_config.get('TENCENT_SECRET_ID', '')
+        secret_key = env_config.get('TENCENT_SECRET_KEY', '')
+        if secret_id and secret_key:
+            return {
+                'tencent_asr': {
+                    'secret_id': secret_id,
+                    'secret_key': secret_key
+                }
+            }
+    
+    # 回退到 config.json
     if not CONFIG_PATH.exists():
         return None
     with open(CONFIG_PATH, 'r') as f:

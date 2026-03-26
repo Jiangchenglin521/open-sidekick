@@ -9,14 +9,7 @@ Read, search, and manage email via IMAP protocol. Send email via SMTP. Supports 
 
 ## Configuration
 
-> **提示**：执行任何邮件操作前，**先检查 `.env` 文件是否存在**！不要默认用户未配置。
-> 
-> ```bash
-> # 检查配置是否存在
-> cat ~/.openclaw/workspace/skills/imap-smtp-email/.env 2>/dev/null || echo "未配置"
-> ```
-
-Create `.env` in the skill folder or set environment variables:
+统一配置路径：`~/.openclaw/workspace/.env`
 
 ```bash
 # IMAP Configuration (receiving email)
@@ -37,6 +30,15 @@ SMTP_PASS=your_password           # Your password or app password
 SMTP_FROM=your@gmail.com          # Default sender email (optional)
 SMTP_REJECT_UNAUTHORIZED=true     # Set to false for self-signed certs
 ```
+
+**注意**：不再使用技能目录下的 `.env` 文件，请迁移到统一 `~/.openclaw/workspace/.env`。
+
+> **提示**：执行任何邮件操作前，**先检查配置是否存在**！
+> 
+> ```bash
+> # 检查配置是否存在
+> grep "IMAP_HOST" ~/.openclaw/workspace/.env 2>/dev/null && echo "已配置" || echo "未配置"
+> ```
 
 ## Common Email Servers
 

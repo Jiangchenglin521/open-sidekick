@@ -22,10 +22,26 @@ CHANNELS=1
 
 # Detect OS and set input device
 OS=$(uname -s)
+DEVICE_NAME=""
+DEVICE_TYPE=""
+
 case "$OS" in
     Darwin)
-        # macOS - use default audio input
-        INPUT_DEVICE=":0"
+        # macOS - 使用智能设备选择
+        FFMPEG_SKILL_DIR="$HOME/.openclaw/workspace/skills/ffmpeg-1.0.0"
+        if [ -f "$FFMPEG_SKILL_DIR/scripts/select-device.sh" ]; then
+            # 获取智能选择的设备
+            DEVICE_JSON=$("$FFMPEG_SKILL_DIR/scripts/select-device.sh" audio)
+            DEVICE_INDEX=$(echo "$DEVICE_JSON" | grep -o '"index": "[^"]*"' | cut -d'"' -f4)
+            DEVICE_NAME=$(echo "$DEVICE_JSON" | grep -o '"name": "[^"]*"' | head -1 | cut -d'"' -f4)
+            DEVICE_TYPE=$(echo "$DEVICE_JSON" | grep -o '"type": "[^"]*"' | head -1 | cut -d'"' -f4)
+            INPUT_DEVICE=":$DEVICE_INDEX"
+        else
+            # 兜底方案：使用默认索引
+            INPUT_DEVICE=":0"
+            DEVICE_NAME="Default"
+            DEVICE_TYPE="unknown"
+        fi
         ;;
     Linux)
         # Linux - try pulseaudio or alsa
@@ -34,9 +50,13 @@ case "$OS" in
         else
             INPUT_DEVICE="hw:0"
         fi
+        DEVICE_NAME="Linux Audio"
+        DEVICE_TYPE="unknown"
         ;;
     *)
         INPUT_DEVICE="default"
+        DEVICE_NAME="Default"
+        DEVICE_TYPE="unknown"
         ;;
 esac
 
@@ -44,6 +64,17 @@ echo "🎤 Starting recording..."
 echo "   Meeting: $MEETING_NAME"
 echo "   Date: $DATE"
 echo "   Output: $AUDIO_FILE"
+
+# 显示设备信息
+if [ -n "$DEVICE_NAME" ] && [ "$OS" = "Darwin" ]; then
+    if [ "$DEVICE_TYPE" = "external" ]; then
+        echo "   设备: 🎧 $DEVICE_NAME (外置)"
+    elif [ "$DEVICE_TYPE" = "internal" ]; then
+        echo "   设备: 🎤 $DEVICE_NAME (内置)"
+    else
+        echo "   设备: $DEVICE_NAME"
+    fi
+fi
 
 # Start ffmpeg recording in background
 ffmpeg -f avfoundation -i "$INPUT_DEVICE" \

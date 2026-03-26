@@ -37,7 +37,12 @@ If user provides **no audio file** and doesn't mention uploading:
 {baseDir}/scripts/start-recording.sh {date} {meeting-name}
 ```
 
-This starts ffmpeg recording from system microphone.
+This starts ffmpeg recording with **smart device selection**:
+- **macOS**: 自动检测并优先选择外置麦克风（如 USB 麦克风、耳机麦克风）
+- **无外置设备**: 自动使用内置麦克风
+- **Linux**: 使用默认音频输入
+
+设备选择由 FFmpeg 技能提供的 `select-device.sh` 脚本处理。
 
 ### Mode 2: Wait for Upload
 
@@ -96,19 +101,52 @@ All files saved to:
 
 ## Processing Pipeline
 
-1. **Audio to Text**: Send to chinese-asr skill
+1. **Audio Duration Check**: Check if audio exceeds 3 minutes
+   - **≤3 minutes**: Direct transcription
+   - **>3 minutes**: Auto-split into 2m50s segments (Tencent ASR limit)
+
+2. **Audio to Text**: Send to chinese-asr skill
    ```bash
-   # In skill script
+   # Short audio (<=3min): Direct transcription
    python {chinese-asr-dir}/asr.py {audio-file}
+   
+   # Long audio (>3min): Split → Transcribe each → Merge
+   # Handled by process-meeting.sh automatically
    ```
 
-2. **Generate Minutes**: Use meeting-minutes skill
+3. **Generate Minutes**: Use meeting-minutes skill
    - Generate structured minutes
    - Extract action items with owners/deadlines
 
-3. **Generate Mindmap**: Use mindmap-generator skill (unless disabled)
+4. **Generate Mindmap**: Use mindmap-generator skill (unless disabled)
    - Create Mermaid syntax from minutes
    - Render to PNG
+
+### Long Audio Handling
+
+**Why split?** Tencent ASR has a 3-minute limit per request.
+
+**Strategy:**
+- Auto-detect audio duration using ffprobe
+- Split into 2-minute-50-second segments (170s, leaving buffer)
+- Transcribe each segment sequentially
+- Merge results into single transcript
+- Cleanup temporary segment files
+
+**User experience:**
+```
+⏱️ 长音频检测到，自动分割处理...
+分割为 4 段，逐段转录...
+🎵 转录第 1/4 段...
+🎵 转录第 2/4 段...
+🎵 转录第 3/4 段...
+🎵 转录第 4/4 段...
+📝 合并转录结果...
+```
+
+**Scripts involved:**
+- `split-audio.sh` - Detect duration and split if needed
+- `process-meeting.sh` - Orchestrate split → transcribe → merge
 
 ## User Preference Handling
 

@@ -84,3 +84,49 @@ metadata: {"clawdbot":{"emoji":"🎬","requires":{"bins":["ffmpeg"]},"os":["linu
 - Audio desync after cutting—use `-async 1` or `-af aresample=async=1`
 - Filter on stream copy—filters require re-encoding; `-c copy` + `-vf` = error
 - Output extension doesn't set codec—`output.mp4` without `-c:v` uses default, may not be H.264
+
+## macOS AVFoundation Device Selection
+
+自动智能选择音频输入设备，优先使用外置设备。
+
+### 使用脚本选择设备
+
+```bash
+# 获取推荐的音频设备
+DEVICE_JSON=$(bash ~/.openclaw/workspace/skills/ffmpeg-1.0.0/scripts/select-device.sh audio)
+DEVICE_INDEX=$(echo "$DEVICE_JSON" | grep -o '"index": "[^"]*"' | cut -d'"' -f4)
+DEVICE_NAME=$(echo "$DEVICE_JSON" | grep -o '"name": "[^"]*"' | head -1 | cut -d'"' -f4)
+
+# 使用选择的设备录音
+ffmpeg -f avfoundation -i ":$DEVICE_INDEX" output.wav
+```
+
+### 选择逻辑
+
+1. **外置设备优先** - 识别名称不含 FaceTime/Built-in/Internal 的设备
+2. **内置设备兜底** - 无外置设备时选择 FaceTime/内置麦克风
+3. **动态索引** - 不假设内置设备一定是索引 0
+
+### 返回值格式
+
+```json
+{
+  "index": "1",
+  "name": "USB Audio Device",
+  "type": "external",
+  "device_type": "audio",
+  "all_devices": [
+    {"index": "0", "name": "Built-in Microphone", "type": "internal"},
+    {"index": "1", "name": "USB Audio Device", "type": "external"}
+  ]
+}
+```
+
+### 内置设备识别规则
+
+以下关键词被识别为内置设备：
+- `FaceTime` - FaceTime HD Camera / FaceTime 麦克风
+- `Built-in` - Built-in Microphone / Built-in Camera
+- `Internal` - Internal Microphone
+
+不含上述关键词的设备被视为外置设备，优先选择。

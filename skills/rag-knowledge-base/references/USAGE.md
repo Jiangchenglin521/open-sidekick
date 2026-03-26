@@ -1,38 +1,87 @@
 # RAG Knowledge Base - 使用指南
 
+## 虚拟环境说明
+
+技能已自带虚拟环境 `.venv`，所有依赖已预装。请**务必使用虚拟环境的 Python** 运行脚本：
+
+```bash
+# ✅ 正确方式：使用虚拟环境
+./.venv/bin/python scripts/ingest.py /path/to/doc.pdf
+./.venv/bin/python scripts/retriever.py "查询内容"
+
+# ❌ 错误方式：直接使用系统 python
+python scripts/ingest.py /path/to/doc.pdf  # 会报依赖缺失错误
+```
+
+虚拟环境位置：`{skillDir}/.venv/`
+
+---
+
+## 首次使用准备
+
+### 依赖检查
+
+如需验证依赖完整性，运行：
+```bash
+./.venv/bin/python scripts/dependency_manager.py
+```
+
+### 模型自动下载
+
+Embedding模型（约80MB）首次使用时会自动下载：
+
+```
+📥 正在下载Embedding模型 (all-MiniLM-L6-v2)...
+   模型大小: ~80MB，首次使用需要下载
+   使用国内镜像源加速...
+   ⏳ 请稍候...
+   ✅ 模型下载完成！
+   📁 缓存位置: ~/.cache/sentence-transformers
+```
+
+**手动安装**（如果自动安装失败）：
+```bash
+# 激活虚拟环境后安装
+source .venv/bin/activate
+pip install sentence-transformers==2.5.1 scikit-learn==1.4.0 numpy==1.26.4 scipy==1.12.0 PyPDF2 python-docx
+
+# 或切换到国内镜像
+pip install -i https://mirrors.aliyun.com/pypi/simple/ sentence-transformers==2.5.1 scikit-learn==1.4.0 numpy==1.26.4 scipy==1.12.0 PyPDF2 python-docx
+```
+
 ## 快速开始
 
 ### 1. 归档文档
 
 ```bash
 # 自动分类归档
-python scripts/ingest.py /path/to/document.pdf
+./.venv/bin/python scripts/ingest.py /path/to/document.pdf
 
 # 指定归档位置
-python scripts/ingest.py /path/to/document.pdf --notebook "智能家居"
+./.venv/bin/python scripts/ingest.py /path/to/document.pdf --notebook "智能家居"
 ```
 
 ### 2. 检索查询
 
 ```bash
 # 全局检索
-python scripts/retriever.py "小度如何控制智能家居"
+./.venv/bin/python scripts/retriever.py "小度如何控制智能家居"
 
 # 指定notebook检索
-python scripts/retriever.py "安装配置" --notebook "OpenClaw"
+./.venv/bin/python scripts/retriever.py "安装配置" --notebook "OpenClaw"
 ```
 
 ### 3. Notebook管理
 
 ```bash
 # 列出所有notebook
-python scripts/notebook_manager.py
+./.venv/bin/python scripts/notebook_manager.py
 
 # 创建notebook
-python scripts/notebook_manager.py create "新项目"
+./.venv/bin/python scripts/notebook_manager.py create "新项目"
 
 # 删除notebook
-python scripts/notebook_manager.py delete "旧项目"
+./.venv/bin/python scripts/notebook_manager.py delete "旧项目"
 ```
 
 ## 工作流程
@@ -104,7 +153,57 @@ knowledge-base/
 2. 向量化文档
 3. 计算与每个notebook的向量相似度
 4. 相似度≥0.6 → 归档到现有项目
-5. 相似度<0.6 → 创建新项目
+5. 相似度<0.6 → **智能生成新项目名**（LLM基于内容理解生成，非简单标题截取）
+
+### 智能命名示例
+
+| 文档标题 | 智能生成的项目名 |
+|----------|------------------|
+| `2024_Q1_产品需求文档_v3.pdf` | `产品需求` |
+| `小度音箱硬件规格说明书_内部版.docx` | `小度音箱` |
+| `Git工作流与分支管理规范.md` | `Git规范` |
+| `2025年度市场营销预算表.xlsx` | `营销预算` |
+
+### LLM配置说明
+
+如需使用外部LLM（如OpenAI）进行智能命名，编辑配置文件：
+
+```bash
+# 编辑配置文件
+nano ~/.openclaw/workspace/skills/rag-knowledge-base/config.json
+```
+
+**配置示例（使用OpenAI）：**
+
+```json
+{
+  "llm": {
+    "provider": "openai",
+    "api_key": "sk-xxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_base": "https://api.openai.com/v1",
+    "model": "gpt-3.5-turbo",
+    "temperature": 0.3,
+    "max_tokens": 50
+  }
+}
+```
+
+**配置示例（使用兼容API，如Azure/代理）：**
+
+```json
+{
+  "llm": {
+    "provider": "openai",
+    "api_key": "your-api-key",
+    "api_base": "https://your-proxy.com/v1",
+    "model": "gpt-4",
+    "temperature": 0.3,
+    "max_tokens": 50
+  }
+}
+```
+
+**不配置LLM时**，系统默认使用 `openclaw` provider，调用本地agent进行命名。
 
 ### 混合检索算法
 

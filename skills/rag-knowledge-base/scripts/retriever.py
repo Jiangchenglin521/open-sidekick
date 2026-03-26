@@ -7,12 +7,34 @@ import os
 import sys
 import json
 import argparse
-import numpy as np
 from typing import List, Tuple, Dict
 
 # 添加脚本目录到路径
 script_dir = os.path.dirname(__file__)
 sys.path.insert(0, script_dir)
+
+# 检查是否使用虚拟环境的Python
+venv_python = os.path.join(os.path.dirname(script_dir), '.venv', 'bin', 'python')
+if sys.executable != venv_python and os.path.exists(venv_python):
+    print("⚠️  警告: 未使用虚拟环境的 Python")
+    print(f"   当前: {sys.executable}")
+    print(f"   应使用: {venv_python}")
+    print("   请使用: ./.venv/bin/python scripts/retriever.py")
+    print()
+
+# 首先检查并安装依赖
+try:
+    from dependency_manager import ensure_deps
+    if not ensure_deps():
+        print("❌ 依赖安装失败，无法继续检索")
+        print("💡 请尝试使用虚拟环境的 Python:")
+        print(f"   {venv_python} {os.path.abspath(__file__)}")
+        sys.exit(1)
+except Exception as e:
+    print(f"⚠️  依赖检查失败: {e}")
+    print("   继续尝试执行...")
+
+import numpy as np
 
 from embedder import encode, cosine_similarity
 from notebook_manager import NotebookManager

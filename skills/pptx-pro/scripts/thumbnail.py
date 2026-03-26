@@ -9,10 +9,10 @@ Usage:
 
 Examples:
     python thumbnail.py presentation.pptx
-    # Creates: thumbnails.jpg
+    # Creates: ppt-output/thumbnails.jpg
 
     python thumbnail.py template.pptx grid --cols 4
-    # Creates: grid.jpg (or grid-1.jpg, grid-2.jpg for large decks)
+    # Creates: ppt-output/grid.jpg
 """
 
 import argparse
@@ -25,6 +25,8 @@ from pathlib import Path
 import defusedxml.minidom
 from office.soffice import get_soffice_env
 from PIL import Image, ImageDraw, ImageFont
+
+from output_manager import resolve_output_path, get_output_dir
 
 THUMBNAIL_WIDTH = 300
 CONVERSION_DPI = 100
@@ -66,7 +68,9 @@ def main():
         print(f"Error: Invalid PowerPoint file: {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    output_path = Path(f"{args.output_prefix}.jpg")
+    # 解析输出路径（统一放到ppt-output目录）
+    output_file = f"{args.output_prefix}.jpg"
+    output_path = resolve_output_path(output_file)
 
     try:
         slide_info = get_slide_info(input_path)
@@ -86,6 +90,8 @@ def main():
             print(f"Created {len(grid_files)} grid(s):")
             for grid_file in grid_files:
                 print(f"  {grid_file}")
+            
+            print(f"\n📁 输出目录: {get_output_dir()}")
 
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)

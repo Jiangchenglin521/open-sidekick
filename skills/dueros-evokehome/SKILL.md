@@ -88,14 +88,16 @@ description: DuerOS 智能家居控制技能 - 饱和式攻击执行架构，支
 
 ### 1. 配置 Token
 
-编辑 `config/config.json`：
+编辑统一配置文件 `~/.openclaw/workspace/.env`：
 
-```json
-{
-  "accessToken": "your_access_token_here",
-  "refreshToken": "optional_refresh_token"
-}
+```bash
+# DuerOS 配置
+DUEROS_ACCESS_TOKEN=your_access_token_here
+DUEROS_REFRESH_TOKEN=optional_refresh_token
+DUEROS_DEFAULT_DEVICE=台灯
 ```
+
+**注意**：不再使用 `config/config.json`，请迁移到统一 `.env` 文件。
 
 **获取 Token 方法：**
 1. 访问 [小度官网](https://xiaodu.baidu.com) 并登录

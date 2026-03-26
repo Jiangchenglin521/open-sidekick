@@ -1,6 +1,179 @@
 {
   "requiredSkills": [
-    "self-improving-agent",
     "summarize-pro"
-  ]
+  ],
+  "skillConfigs": {
+    "search": {
+      "name": "网络搜索",
+      "description": "Brave Search API 网络搜索",
+      "configs": [
+        {
+          "key": "BRAVE_API_KEY",
+          "name": "Brave Search API Key",
+          "description": "用于网页搜索，可从 https://brave.com/search/api/ 获取免费额度",
+          "required": true,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "BRAVE_API_KEY",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 BRAVE_API_KEY=<your-key>"
+        }
+      ]
+    },
+    "tavily-search": {
+      "name": "Tavily 搜索",
+      "description": "AI 优化的网络搜索",
+      "configs": [
+        {
+          "key": "TAVILY_API_KEY",
+          "name": "Tavily API Key",
+          "description": "用于 Tavily 搜索，可从 https://tavily.com 获取",
+          "required": true,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "TAVILY_API_KEY",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 TAVILY_API_KEY=<your-key>"
+        }
+      ]
+    },
+    "super-websearch-realtime": {
+      "name": "超级实时搜索",
+      "description": "实时网络搜索",
+      "configs": [
+        {
+          "key": "BRAVE_API_KEY",
+          "name": "Brave Search API Key",
+          "description": "依赖 search 技能，需配置 BRAVE_API_KEY",
+          "required": true,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "BRAVE_API_KEY",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 BRAVE_API_KEY=<your-key>"
+        }
+      ]
+    },
+    "dueros-evokehome": {
+      "name": "DuerOS 智能家居",
+      "description": "小度智能家居控制",
+      "configs": [
+        {
+          "key": "DUEROS_ACCESS_TOKEN",
+          "name": "DuerOS Access Token",
+          "description": "小度智能家居访问令牌，需从小度官网开发者工具获取",
+          "required": true,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "DUEROS_ACCESS_TOKEN",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 DUEROS_ACCESS_TOKEN=<token>"
+        }
+      ]
+    },
+    "chinese-asr": {
+      "name": "腾讯云语音识别",
+      "description": "中文语音转文字",
+      "configs": [
+        {
+          "key": "TENCENT_SECRET_ID",
+          "name": "腾讯云 Secret ID",
+          "description": "腾讯云语音识别 Secret ID，从 https://console.cloud.tencent.com/cam/capi 获取",
+          "required": true,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "TENCENT_SECRET_ID",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 TENCENT_SECRET_ID=<id>"
+        },
+        {
+          "key": "TENCENT_SECRET_KEY",
+          "name": "腾讯云 Secret Key",
+          "description": "腾讯云语音识别 Secret Key",
+          "required": true,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "TENCENT_SECRET_KEY",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 TENCENT_SECRET_KEY=<key>"
+        }
+      ]
+    },
+    "imap-smtp-email": {
+      "name": "邮件收发",
+      "description": "IMAP/SMTP 邮件管理",
+      "configs": [
+        {
+          "key": "IMAP_HOST",
+          "name": "IMAP 服务器地址",
+          "description": "邮箱 IMAP 服务器地址 (如 imap.163.com, imap.gmail.com)",
+          "required": true,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "IMAP_HOST",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 IMAP_HOST=<host>"
+        },
+        {
+          "key": "IMAP_USER",
+          "name": "邮箱用户名",
+          "description": "邮箱登录用户名（完整邮箱地址）",
+          "required": true,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "IMAP_USER",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 IMAP_USER=<your-email>"
+        },
+        {
+          "key": "IMAP_PASS",
+          "name": "邮箱密码/授权码",
+          "description": "邮箱登录密码或授权码（163/Gmail 需用授权码）",
+          "required": true,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "IMAP_PASS",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 IMAP_PASS=<password>"
+        }
+      ]
+    },
+    "rag-knowledge-base": {
+      "name": "RAG知识库",
+      "description": "文档智能归档与检索（可选配置智能命名LLM）",
+      "configs": [
+        {
+          "key": "RAG_LLM_PROVIDER",
+          "name": "LLM提供商",
+          "description": "智能项目命名使用的LLM提供商 (openai/openclaw)，不配置则使用OpenClaw默认agent",
+          "required": false,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "RAG_LLM_PROVIDER",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 RAG_LLM_PROVIDER=<provider>"
+        },
+        {
+          "key": "RAG_API_KEY",
+          "name": "API Key",
+          "description": "LLM API密钥（如使用OpenAI等外部提供商）",
+          "required": false,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "RAG_API_KEY",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 RAG_API_KEY=<key>"
+        },
+        {
+          "key": "RAG_API_BASE",
+          "name": "API基础URL",
+          "description": "LLM API基础地址（如使用自定义API或代理）",
+          "required": false,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "RAG_API_BASE",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 RAG_API_BASE=<url>"
+        },
+        {
+          "key": "RAG_MODEL",
+          "name": "模型名称",
+          "description": "使用的LLM模型名称（如 gpt-3.5-turbo, gpt-4）",
+          "required": false,
+          "checkType": "file",
+          "filePath": "~/.openclaw/workspace/.env",
+          "pattern": "RAG_MODEL",
+          "setupCommand": "在 ~/.openclaw/workspace/.env 中配置 RAG_MODEL=<model>"
+        }
+      ]
+    }
+  }
 }

@@ -236,3 +236,9 @@
   - `node --import tsx scripts/release-check.ts`
   - `pnpm release:check`
   - `pnpm test:install:smoke` 或 `OPENCLAW_INSTALL_SMOKE_SKIP_NONROOT=1 pnpm test:install:smoke` 用于非 root 冒烟路径。
+
+<!-- clawx:begin -->
+## DuerClaw Environment
+
+You are DuerClaw, a desktop AI assistant application based on OpenClaw. See TOOLS.md for DuerClaw-specific tool notes (uv, browser automation, etc.).
+<!-- clawx:end -->

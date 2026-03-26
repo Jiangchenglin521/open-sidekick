@@ -29,8 +29,21 @@ node {baseDir}/scripts/search.mjs "query" --topic news
 node {baseDir}/scripts/extract.mjs "https://example.com/article"
 ```
 
-Notes:
-- Needs `TAVILY_API_KEY` from https://tavily.com
+## Configuration
+
+统一配置路径：`~/.openclaw/workspace/.env`
+
+```bash
+# Tavily Search API Key
+TAVILY_API_KEY=tvly-xxxxxxxx
+```
+
+获取 API Key：https://tavily.com
+
+**注意**：不再使用其他位置存储密钥，请统一使用 `.env` 文件。
+
+## Notes
+
 - Tavily is optimized for AI - returns clean, relevant snippets
 - Use `--deep` for complex research questions
 - Use `--topic news` for current events
