@@ -148,7 +148,7 @@ ffmpeg -i input.mp3 -ar 44100 output.mp3
 
 ```bash
 # 获取推荐的音频设备
-DEVICE_JSON=$(bash ~/.openclaw/workspace/skills/ffmpeg-1.0.0/scripts/select-device.sh audio)
+DEVICE_JSON=$(bash ~/.openclaw/workspace/skills/ffmpeg/scripts/select-device.sh audio)
 DEVICE_INDEX=$(echo "$DEVICE_JSON" | grep -o '"index": "[^"]*"' | cut -d'"' -f4)
 DEVICE_NAME=$(echo "$DEVICE_JSON" | grep -o '"name": "[^"]*"' | head -1 | cut -d'"' -f4)
 

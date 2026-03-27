@@ -170,7 +170,7 @@ knowledge-base/
 
 ```bash
 # 编辑配置文件
-nano ~/.openclaw/workspace/skills/rag-knowledge-base/config.json
+nano ~/.openclaw/workspace/skills/knowledge-base/config.json
 ```
 
 **配置示例（使用OpenAI）：**

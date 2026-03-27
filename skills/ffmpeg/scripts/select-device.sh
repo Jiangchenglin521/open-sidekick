@@ -9,10 +9,14 @@ DEVICE_TYPE="${1:-audio}"  # audio 或 video
 
 # 内置设备关键词（用于识别内置设备）
 # 英文关键词 + 中文系统常见内置设备名
-INTERNAL_KEYWORDS="FaceTime|Built-in|Internal|MacBook|iMac|Mac mini|Mac Studio|苹果"
+INTERNAL_KEYWORDS="FaceTime|Built-in|Internal|MacBook|iMac|Mac mini|Mac Studio|苹果|Built-in Microphone|Internal Microphone|Internal Mic|内置麦克风|板载麦克风"
+
+# 外置设备关键词（用于识别外置设备）
+EXTERNAL_KEYWORDS="USB Audio|USB Microphone|USB MIC|Headset|Headphones|Earphones|AirPods|Sony WH|Bose QC|Jabra|Logitech Headset|External|外置麦克风|外接麦克风|Line In|Yeti|Blue Snowball|Audio-Technica|Rode|Shure|HyperX|Razer Seiren|Elgato Wave|Scarlett|Focusrite|Behringer|PreSonus|M-Audio|Apollo|UR22|UR44|Steinberg|蓝牙|Bluetooth"
 
 # 虚拟设备关键词（需要排除）
-VIRTUAL_KEYWORDS="Cast Audio|Soundflower|BlackHole|Loopback|VB-Audio|Virtual"
+# 会议软件虚拟设备 + 虚拟音频驱动 + 系统/投屏输出设备
+VIRTUAL_KEYWORDS="Cast Audio|Soundflower|BlackHole|Loopback|VB-Audio|Virtual|Infoflow|如流|Lark|飞书|DingTalk|钉钉|腾讯会议|VooV|ZoomAudioDevice|Zoom Audio Device|Microsoft Teams Audio Device|Teams Audio Device|Google Meet|Webex|Cisco Webex|全时会议|小鱼易连|华为云会议|网易会议|声网|Agora|iShowU Audio Capture|Audio Hijack|GroundControl|WDM|MME|HDMI Audio|Display Audio|AirPlay|隔空播放|Screen Audio|Digital Audio|S/PDIF|Null Audio|Dummy|Silent|No Device"
 
 # 获取设备列表并解析
 get_devices() {
@@ -68,6 +72,16 @@ is_virtual_device() {
         return 0  # 是虚拟设备
     else
         return 1  # 不是虚拟设备
+    fi
+}
+
+# 判断设备是否为外置设备
+is_external_device() {
+    local name="$1"
+    if echo "$name" | grep -iE "$EXTERNAL_KEYWORDS" > /dev/null; then
+        return 0  # 是外置设备
+    else
+        return 1  # 不是外置设备
     fi
 }
 
